@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "tool": "blender",
+  "toolVersion": "0.1.0",
+  "scope": "model",
+  "pack": "Frostpunk Settlement Kit",
+  "model": "Arrow",
+  "checkedAt": "2026-10-13T10:00:00Z",
+  "stats": {
+    "tris": 1200,
+    "tex": 1024,
+    "mats": 1,
+    "objs": 3
+  },
+  "checks": {
+    "m1-1": {
+      "status": "pass",
+      "detail": "",
+      "values": {
+        "nonManifold": 0,
+        "badContiguous": 0,
+        "zeroFaces": 0,
+        "zeroEdges": 0
+      }
+    },
+    "m1-5": {
+      "status": "fail",
+      "detail": "Object 'ArrowHead' scale = (1, 1, 2)",
+      "values": {
+        "unapplied": [
+          "ArrowHead"
+        ]
+      }
+    },
+    "m1-7": {
+      "status": "review",
+      "detail": "origin ห่างฐานกลาง 0.12 m",
+      "values": {
+        "offset": 0.12
+      }
+    },
+    "m1-13": {
+      "status": "pending",
+      "detail": "",
+      "values": {}
+    }
+  }
+}

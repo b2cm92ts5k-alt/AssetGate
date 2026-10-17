@@ -1,0 +1,18 @@
+{
+  "name": "com.etlolz.assetgate",
+  "version": "1.0.0",
+  "displayName": "Asset Gate",
+  "description": "Asset Gate for Unity: set up and check 3D models delivered from Blender in a URP project (Gate 2), and check a whole pack before selling it on the Asset Store (Gate 3).",
+  "unity": "6000.0",
+  "author": {
+    "name": "ETLOLZ"
+  },
+  "keywords": [
+    "asset",
+    "fbx",
+    "urp",
+    "checklist",
+    "asset store",
+    "blender"
+  ]
+}

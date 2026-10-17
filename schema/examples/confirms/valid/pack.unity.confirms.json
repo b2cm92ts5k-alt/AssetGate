@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "tool": "unity",
+  "scope": "pack",
+  "pack": "Frostpunk Settlement Kit",
+  "confirms": {
+    "k1-6": { "values": { "files": [] }, "confirmedAt": "2026-10-16T10:00:00Z" }
+  }
+}

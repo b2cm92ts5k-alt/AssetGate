@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "asset-gate/store.schema.json",
+  "title": "Where a model came from, typed in the Unity tool in Store mode (<Model>.unity.store.json, SPEC D19)",
+  "type": "object",
+  "required": ["schema", "tool", "pack", "model", "plan", "genDate", "manual"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": 1 },
+    "tool": { "const": "unity" },
+    "pack": { "type": "string", "minLength": 1 },
+    "model": { "type": "string", "minLength": 1 },
+    "plan": { "type": "string" },
+    "genDate": { "type": "string" },
+    "manual": { "type": "string" }
+  }
+}

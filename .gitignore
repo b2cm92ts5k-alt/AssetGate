@@ -1,0 +1,18 @@
+.venv/
+__pycache__/
+*.pyc
+
+# Unity
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+
+# User data — never commit (CLAUDE.md)
+/data/
+*.blend
+*.blend1
+*.fbx
+dist/
+tests/web/.mock/

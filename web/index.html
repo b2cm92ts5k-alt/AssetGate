@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asset Gate — เช็คลิสต์</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#10141a;
+    --panel:#171c23;
+    --panel-2:#1d232b;
+    --line:#2a323d;
+    --text:#e9ecef;
+    --muted:#98a1ad;
+    --faint:#6f7a88;
+    --done:#59d68b;
+    --urp:#35b4c9;
+    --warn:#e8735a;
+    --review:#e8b85a;
+    --radius:10px;
+    --maxw:860px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'IBM Plex Sans Thai', -apple-system, sans-serif;
+    font-size:15px;
+    line-height:1.65;
+  }
+  code, .mono{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.9em;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    padding:1px 6px;
+    border-radius:4px;
+    color:var(--text);
+  }
+  a{color:var(--urp);}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+
+  /* ---------- hero ---------- */
+  .hero{max-width:var(--maxw); margin:0 auto; padding:40px 24px 20px;}
+  .mark{display:block; margin-bottom:16px;}
+  .hero h1{font-size:25px; line-height:1.35; font-weight:600; margin:0 0 10px; letter-spacing:-0.01em;}
+  .hero p{color:var(--muted); font-size:15px; margin:0; max-width:62ch;}
+
+  /* ---------- sticky bar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:10;
+    background:rgba(16,20,26,0.94);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-inner{max-width:var(--maxw); margin:0 auto; padding:10px 24px; display:flex; flex-direction:column; gap:8px;}
+  .row{display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+  .tabs{display:flex; gap:4px; background:var(--panel); border:1px solid var(--line); border-radius:99px; padding:3px;}
+  .tab{
+    font-family:inherit; font-size:13.5px; color:var(--muted);
+    background:transparent; border:0; padding:6px 16px; border-radius:99px; cursor:pointer;
+  }
+  .tab[aria-selected="true"]{background:var(--urp); color:#07181c; font-weight:600;}
+  .progress{flex:1; min-width:220px; display:flex; align-items:center; gap:10px;}
+  .progress-label{font-size:12.5px; color:var(--muted); white-space:nowrap;}
+  .progress-track{flex:1; height:6px; border-radius:99px; background:var(--panel-2); overflow:hidden;}
+  .progress-fill{height:100%; width:0%; background:var(--done); border-radius:99px; transition:width 0.35s ease;}
+  .progress-count{font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--muted); min-width:64px; text-align:right;}
+  .tools{font-size:12.5px; color:var(--muted);}
+  .tools .warn{color:var(--warn);}
+  .tools .ok{color:var(--done);}
+  .tools .spacer{flex:1;}
+
+  .btn{
+    font-family:inherit; font-size:13px; color:var(--text);
+    background:var(--panel-2); border:1px solid var(--line);
+    padding:6px 13px; border-radius:99px; cursor:pointer; white-space:nowrap;
+    display:inline-block; line-height:1.5;
+  }
+  .btn:hover{border-color:var(--muted);}
+  .btn.danger{color:var(--warn);}
+  .btn.primary{background:var(--urp); border-color:var(--urp); color:#07181c; font-weight:600;}
+  .btn.small{font-size:12px; padding:3px 10px;}
+  .lang-switch{display:inline-flex; gap:4px;}
+  .lang-switch .btn[aria-pressed="true"]{background:var(--accent, #35b4c9); color:#06121a; border-color:transparent;}
+
+  button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible,
+  summary:focus-visible, .checkrow:focus-within, .file-btn:focus-within{
+    outline:2px solid var(--urp); outline-offset:2px;
+  }
+
+  main{max-width:var(--maxw); margin:0 auto; padding:24px 24px 60px;}
+
+  /* ---------- cards ---------- */
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:20px 22px; margin-bottom:18px;}
+  .card h2{font-size:14px; margin:0 0 14px; color:var(--muted); font-weight:600;}
+  .card.notice{border-left:3px solid var(--review);}
+  .card.notice p{margin:0 0 10px; font-size:14px;}
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .grid.four{grid-template-columns:repeat(4, 1fr);}
+  .field{display:flex; flex-direction:column; gap:6px; min-width:0;}
+  .field.full{grid-column:1 / -1;}
+  .field label{font-size:12.5px; color:var(--muted);}
+  .field input, .field textarea, .field select, .bar-select, .inline-input{
+    font-family:inherit; font-size:14px; color:var(--text);
+    background:var(--panel-2); border:1px solid var(--line);
+    border-radius:7px; padding:9px 11px; width:100%;
+  }
+  .field input:disabled{color:var(--muted); border-style:dashed;}
+  .field textarea{min-height:60px; resize:vertical;}
+  .field input::placeholder, .field textarea::placeholder{color:var(--faint);}
+  .hint{font-size:12.5px; color:var(--muted); min-height:1.2em; margin-top:2px;}
+  .hint.bad{color:var(--warn);}
+
+  .bar{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:18px;}
+  .bar-select{flex:1; min-width:220px; width:auto;}
+  .empty{text-align:center; padding:36px 20px; color:var(--muted);}
+  .empty p{margin:0 0 14px;}
+
+  /* gates summary */
+  .gates{display:grid; grid-template-columns:repeat(2, 1fr); gap:12px;}
+  .gate{background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:12px 14px;}
+  .gate .g-name{font-size:12.5px; color:var(--muted);}
+  .gate .g-state{font-size:16px; font-weight:600; margin-top:2px;}
+  .gate .g-meta{font-size:12px; color:var(--faint); margin-top:2px;}
+  .gate.pass .g-state{color:var(--done);}
+  .gate.fail .g-state{color:var(--warn);}
+  .gate.wait .g-state{color:var(--review);}
+
+  /* chips (packs) */
+  .chips{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;}
+  .chip{
+    font-family:inherit; font-size:13px; color:var(--text); background:var(--panel);
+    border:1px solid var(--line); padding:7px 14px; border-radius:99px; cursor:pointer;
+  }
+  .chip[aria-pressed="true"]{border-color:var(--urp); box-shadow:inset 0 0 0 1px var(--urp);}
+  .add-pack{display:flex; gap:8px; margin-bottom:18px; max-width:420px;}
+  .inline-input{padding:7px 11px; font-size:13px;}
+
+  /* ---------- phases ---------- */
+  .phase{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); margin-bottom:16px;}
+  .phase-head{
+    list-style:none; cursor:pointer;
+    display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+    padding:18px 22px;
+  }
+  .phase-head::-webkit-details-marker{display:none;}
+  .phase-title{display:flex; align-items:baseline; gap:10px;}
+  .phase-title::before{content:"▸"; color:var(--faint); font-size:12px; transition:transform .15s ease; display:inline-block;}
+  details[open] > .phase-head .phase-title::before{transform:rotate(90deg);}
+  .phase-num{font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--faint);}
+  .phase-head h3{font-size:16px; font-weight:600; margin:0;}
+  .phase-count{font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--muted); white-space:nowrap;}
+  .phase-count.all{color:var(--done);}
+  .phase-body{padding:0 22px 20px;}
+  .phase-note{color:var(--muted); font-size:13.5px; margin:0 0 12px;}
+  .group-label{font-size:12.5px; font-weight:600; color:var(--urp); margin:18px 0 2px; letter-spacing:0.02em;}
+  .group-label:first-child{margin-top:4px;}
+
+  .checkrow{display:flex; gap:12px; padding:11px 0;}
+  .checkrow + .checkrow{border-top:1px solid var(--line);}
+  .checkrow input[type="checkbox"]{
+    appearance:none; -webkit-appearance:none;
+    width:19px; height:19px; min-width:19px; margin:2px 0 0;
+    border:1.5px solid var(--faint); border-radius:5px; background:transparent; cursor:pointer;
+    position:relative; transition:background .15s ease, border-color .15s ease;
+  }
+  .checkrow input[type="checkbox"]:checked{background:var(--done); border-color:var(--done);}
+  .checkrow input[type="checkbox"]:checked::after{
+    content:""; position:absolute; left:5px; top:1.5px; width:5px; height:9px;
+    border:solid #0f1a14; border-width:0 2px 2px 0; transform:rotate(40deg);
+  }
+  .checkrow label, .checkrow .item-main{cursor:default; flex:1; min-width:0;}
+  .checkrow label{cursor:pointer;}
+  .item-title{display:block; font-size:14.5px; font-weight:500;}
+  .item-desc{display:block; font-size:13px; color:var(--muted); margin-top:3px; line-height:1.55;}
+  .item-result{display:block; font-size:13px; margin-top:5px; line-height:1.55;}
+  .item-result.fail{color:var(--warn);}
+  .item-result.review, .item-result.stale{color:var(--review);}
+  .item-result.info{color:var(--muted);}
+  .item-actions{display:flex; gap:6px; margin-top:7px; flex-wrap:wrap;}
+  .checkrow.done .item-title{color:var(--muted);}
+  .checkrow.done .item-desc{color:var(--faint);}
+
+  .status{
+    width:19px; height:19px; min-width:19px; margin:2px 0 0; border-radius:50%;
+    display:inline-flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:700; line-height:1; color:#0f1a14;
+  }
+  .status.pass{background:var(--done);}
+  .status.fail{background:var(--warn);}
+  .status.review{background:var(--review);}
+  .status.stale{background:var(--review);}
+  .status.na{background:var(--line); color:var(--muted);}
+  .status.pending{border:1.5px dashed var(--faint); color:var(--faint); background:transparent;}
+  .tag{font-size:11.5px; color:var(--faint); border:1px solid var(--line); border-radius:99px; padding:0 7px; margin-left:6px; white-space:nowrap; font-weight:400;}
+
+  .fields-block{margin:4px 0 8px; padding-bottom:6px;}
+
+  .callout{
+    background:var(--panel-2); border:1px solid var(--line); border-left:3px solid var(--urp);
+    border-radius:6px; padding:14px 16px; font-size:13.5px; color:var(--muted); margin-top:16px;
+  }
+  .callout strong{color:var(--text);}
+
+  /* ---------- tables ---------- */
+  .table-wrap{overflow-x:auto;}
+  table.ref{width:100%; border-collapse:collapse; font-size:13.5px;}
+  table.ref th, table.ref td{text-align:left; padding:9px 10px; border-bottom:1px solid var(--line); vertical-align:top;}
+  table.ref th{color:var(--muted); font-weight:500; font-size:12.5px; white-space:nowrap;}
+  table.ref td.warn-col{color:var(--warn);}
+  .mini-bar{display:inline-block; vertical-align:middle; width:64px; height:5px; border-radius:99px; background:var(--panel-2); overflow:hidden; margin-right:8px;}
+  .mini-bar > i{display:block; height:100%; background:var(--done);}
+  .badge-warn{color:var(--warn); font-size:12px; white-space:nowrap;}
+  .summary-line{font-size:14px; margin:0 0 12px;}
+  .summary-line b{font-weight:600;}
+
+  #toast{
+    position:fixed; left:50%; bottom:22px; transform:translateX(-50%);
+    background:var(--panel-2); border:1px solid var(--line); color:var(--text);
+    padding:10px 16px; border-radius:8px; font-size:13.5px; opacity:0; pointer-events:none;
+    transition:opacity .2s ease; z-index:20; max-width:90vw;
+  }
+  #toast.show{opacity:1;}
+
+  footer{max-width:var(--maxw); margin:0 auto; padding:0 24px 60px; color:var(--faint); font-size:12.5px;}
+
+  @media (max-width:560px){
+    .grid, .grid.four{grid-template-columns:1fr 1fr;}
+    .gates{grid-template-columns:1fr;}
+    .hero{padding:32px 16px 18px;}
+    main{padding:20px 16px 50px;}
+    .topbar-inner{padding:10px 16px;}
+    .phase-head{padding:16px 16px;}
+    .phase-body{padding:0 16px 18px;}
+    .card{padding:18px 16px;}
+  }
+  @media (max-width:380px){ .grid, .grid.four{grid-template-columns:1fr;} }
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important; scroll-behavior:auto !important;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <svg class="mark" width="72" height="56" viewBox="0 0 72 56" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <rect x="4" y="18" width="34" height="34" rx="6" fill="#35b4c9" fill-opacity="0.35"/>
+    <rect x="19" y="10" width="34" height="34" rx="6" fill="#35b4c9" fill-opacity="0.65"/>
+    <rect x="34" y="2" width="34" height="34" rx="6" fill="#35b4c9" fill-opacity="0.95"/>
+  </svg>
+  <h1 id="heroTitle">Asset Gate</h1>
+  <p id="heroText"></p>
+</header>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="row">
+      <div class="progress">
+        <span class="progress-label" id="progressLabel"></span>
+        <div class="progress-track" role="progressbar" aria-labelledby="progressLabel" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+        <span class="progress-count" id="progressCount">0 / 0</span>
+      </div>
+    </div>
+    <div class="row tools">
+      <span id="folderStatus"></span>
+      <span id="saveStatus"></span>
+      <span class="spacer"></span>
+      <span class="lang-switch" role="group" aria-label="Language / ภาษา">
+        <button class="btn small" id="langEn" type="button" lang="en">English</button>
+        <button class="btn small" id="langTh" type="button" lang="th">ไทย</button>
+      </span>
+      <button class="btn" id="folderBtn" type="button"></button>
+      <button class="btn" id="reloadBtn" type="button"></button>
+      <button class="btn" id="exportBtn" type="button">Export JSON</button>
+      <label class="btn file-btn" for="importFile">Import JSON</label>
+      <input type="file" id="importFile" accept="application/json,.json" class="sr-only">
+    </div>
+  </div>
+</div>
+
+<main id="app"></main>
+
+<section class="phase" style="max-width:var(--maxw); margin:0 auto 16px; border-radius:var(--radius);" aria-labelledby="trbl">
+  <details style="padding:0;">
+    <summary class="phase-head"><span class="phase-title"><span class="phase-num">ref</span><h3 id="trbl"></h3></span></summary>
+    <div class="phase-body">
+      <div class="table-wrap">
+      <table class="ref">
+        <thead><tr id="trblHead"></tr></thead>
+        <tbody id="trblBody"></tbody>
+      </table>
+      </div>
+    </div>
+  </details>
+</section>
+
+<footer id="foot"></footer>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script id="ag-logic">
+/* =========================================================
+   Asset Gate logic — pure functions, no DOM. Tested by tests/web/logic.test.mjs.
+   Check ids must never change (CLAUDE.md hard rule 1).
+   ========================================================= */
+(function(root){
+'use strict';
+
+/* Page language (SPEC M8): 'en' | 'th'. Texts this page makes follow it; texts inside reports from
+   Blender / Unity stay in the language they were checked in (SPEC D10). */
+let LANG = 'th';
+const TEXT = {
+  // statuses, sources
+  'status.pass': ['Pass', 'ผ่าน'], 'status.fail': ['Fail', 'ไม่ผ่าน'], 'status.review': ['Review', 'รอยืนยัน'],
+  'status.na': ['N/A', 'ไม่เกี่ยวข้อง'], 'status.pending': ['Not checked', 'ยังไม่ตรวจ'], 'status.stale': ['Out of date', 'ผลเก่า'],
+  'source.page': ['this page', 'หน้านี้'],
+  // results made by this page
+  'res.noBlender': ['No result from Blender yet — press Check or Export to Unity', 'ยังไม่มีผลจาก Blender — กด “ตรวจ” หรือ “ส่งเข้า Unity”'],
+  'res.noUnity': ['No result from Unity yet', 'ยังไม่มีผลจาก Unity'],
+  'res.stale': ['The FBX changed after the Unity check — check again in Unity', 'FBX ถูกแก้หลังตรวจใน Unity — ตรวจใน Unity ใหม่'],
+  'res.notInReport': ['The report has no result for this item', 'ผลตรวจไม่มีข้อนี้'],
+  'res.noConfig': ['config.json in the Data folder cannot be read yet', 'ยังอ่าน config.json ในโฟลเดอร์ข้อมูลไม่ได้'],
+  'res.noMarketing': ['No marketing/<pack>/ folder in the Data folder yet', 'ยังไม่มีโฟลเดอร์ marketing/<แพ็ก>/ ในโฟลเดอร์ข้อมูล'],
+  'res.optionalMissing': ['No {0} (optional)', 'ไม่มี {0} (ไม่บังคับ)'],
+  'res.fileMissing': ['File not found: {0}', 'ไม่พบไฟล์ {0}'],
+  'res.wrongSize': ['{0} is {1}×{2} (must be {3}×{4})', '{0} ขนาด {1}×{2} (ต้องเป็น {3}×{4})'],
+  'res.shotCount': ['{0} images (needs {1}–{2})', 'มี {0} ภาพ (ต้อง {1}–{2})'],
+  'res.notRatio': ['{0}×{1} is not {2}', '{0}×{1} ไม่ใช่ {2}'],
+  'res.notFormat': ['not {0}', 'ไม่ใช่ {0}'],
+  'res.hasAlpha': ['has alpha', 'มี alpha'],
+  'res.techDraft': ['The technical description draft is in the “Store page drafts” card above — copy it, then confirm',
+                    'ร่างคำอธิบายเทคนิคอยู่ในการ์ด “ร่างข้อความหน้าขาย” ด้านบน — คัดลอกไปใช้แล้วกดยืนยัน'],
+  'res.noModels': ['No model in this pack yet', 'ยังไม่มีโมเดลในแพ็กนี้'],
+  'res.noPackReport': ['No pack result from Unity yet', 'ยังไม่มีผลระดับแพ็กจาก Unity'],
+  'res.notGate2': ['Not through Gate 2 yet: {0}', 'ยังไม่ผ่านด่าน 2: {0}'],
+  'res.unnamed': ['(no name yet)', '(ยังไม่ตั้งชื่อ)'],
+  'res.staleModels': ['Out of date: {0}', 'ผลเก่า: {0}'],
+  'res.notCheckedUnity': ['Not checked in Unity yet: {0}', 'ยังไม่ได้ตรวจใน Unity: {0}'],
+  // page
+  'ui.title': ['Asset Gate — get a 3D pack ready for the Unity Asset Store', 'Asset Gate — เตรียมแพ็กโมเดล 3 มิติให้พร้อมขายบน Unity Asset Store'],
+  'ui.intro': ['Use this page when you get a pack ready to sell (Gate 3). Check each model in Blender and Unity (Store mode); this page puts the results of the whole pack together. The Data folder is normally <code>&lt;Unity project&gt;/AssetGate</code>.',
+               'หน้านี้ใช้ตอนเตรียมแพ็กไปขาย (ด่าน 3) — ตรวจโมเดลแต่ละชิ้นใน Blender และ Unity (โหมดทำขาย) แล้วหน้านี้รวมผลทั้งแพ็กให้เอง · โฟลเดอร์ข้อมูลปกติอยู่ที่ <code>&lt;โปรเจกต์ Unity&gt;/AssetGate</code>'],
+  'ui.docTitle': ['Asset Gate — Store checklist', 'Asset Gate — เช็คลิสต์ขาย'],
+  'ui.progress': ['Whole pack ready', 'ความพร้อมทั้งแพ็ก'],
+  'ui.loading': ['Loading…', 'กำลังโหลด…'],
+  'ui.pickFolder': ['Choose Data folder', 'เลือกโฟลเดอร์ข้อมูล'],
+  'ui.changeFolder': ['Change Data folder', 'เปลี่ยนโฟลเดอร์ข้อมูล'],
+  'ui.allowFolder': ['Allow Data folder', 'อนุญาตโฟลเดอร์ข้อมูล'],
+  'ui.reload': ['Reload', 'โหลดใหม่'],
+  'ui.folderOk': ['Data folder: {0}', 'โฟลเดอร์ข้อมูล: {0}'],
+  'ui.lastRead': [' · last read {0}', ' · อ่านผลล่าสุด {0}'],
+  'ui.badReports': [' · ⚠ {0} reports cannot be read', ' · ⚠ อ่านผลตรวจไม่ได้ {0} ไฟล์'],
+  'ui.needPermission': ['⚠ Allow access to the Data folder “{0}” again', '⚠ ต้องอนุญาตเข้าถึงโฟลเดอร์ข้อมูล “{0}” อีกครั้ง'],
+  'ui.unsupported': ['⚠ This browser cannot read a Data folder — use Chrome or Edge (saving in the browser only for now)',
+                     '⚠ เบราว์เซอร์นี้อ่านโฟลเดอร์ข้อมูลไม่ได้ — ใช้ Chrome หรือ Edge (ตอนนี้บันทึกในเบราว์เซอร์อย่างเดียว)'],
+  'ui.noFolder': ['⚠ No Data folder yet — results will not show (saving in the browser for now)',
+                  '⚠ ยังไม่ได้เชื่อมโฟลเดอร์ข้อมูล — ผลตรวจจะไม่ขึ้น (บันทึกในเบราว์เซอร์ไว้ก่อน)'],
+  'ui.saved': ['· saved {0}', '· บันทึก {0}'],
+  'ui.saveError': ['state.json cannot be saved: {0}', 'บันทึก state.json ไม่ได้: {0}'],
+  'ui.noPicker': ['This browser cannot pick folders — use Chrome or Edge', 'เบราว์เซอร์นี้เลือกโฟลเดอร์ไม่ได้ — ใช้ Chrome หรือ Edge'],
+  'ui.connected': ['Data folder “{0}” connected', 'เชื่อมโฟลเดอร์ข้อมูล “{0}” แล้ว'],
+  'ui.denied': ['No permission — choose the Data folder again', 'ไม่ได้รับสิทธิ์ — เลือกโฟลเดอร์ข้อมูลใหม่'],
+  'ui.updated': ['Results updated', 'อัปเดตผลตรวจแล้ว'],
+  'ui.manual': ['tick yourself', 'ติ๊กเอง'],
+  'ui.confirmedIn': ['confirmed in {0}', 'ยืนยันแล้วใน {0}'],
+  'ui.confirmedHere': ['confirmed', 'ยืนยันแล้ว'],
+  'ui.acceptedReason': ['accepted although it fails: {0}', 'ยอมรับแม้ไม่ผ่าน: {0}'],
+  'ui.undoIn': ['Undo it in {0} (the “Undo confirmation” button of this item)', 'ยกเลิกได้ใน {0} (ปุ่ม “ยกเลิกการยืนยัน” ของข้อนี้)'],
+  'ui.unconfirm': ['Undo confirmation', 'ยกเลิกการยืนยัน'],
+  'ui.confirm': ['Confirm', 'ยืนยัน'],
+  'ui.cancel': ['Cancel', 'ยกเลิก'],
+  'ui.accept': ['Accept although it fails…', 'ยอมรับแม้ไม่ผ่าน…'],
+  'ui.acceptReason': ['Why do you accept this item although it fails? (required)', 'เหตุผลที่ยอมรับข้อนี้แม้ไม่ผ่าน (จำเป็น)'],
+  'ui.pickPack': ['Choose a pack', 'เลือกแพ็ก'],
+  'ui.packChip': ['{0} · {1}/{2} models done', '{0} · {1}/{2} ชิ้นผ่านครบ'],
+  'ui.noResults': ['No results yet — choose the Data folder <code>&lt;Unity project&gt;/AssetGate</code>, then check models in Blender and Unity (Store mode). Packs and models show up here by themselves.',
+                   'ยังไม่มีผลตรวจ — เลือกโฟลเดอร์ข้อมูลที่ <code>&lt;โปรเจกต์ Unity&gt;/AssetGate</code> แล้วตรวจโมเดลใน Blender และ Unity (โหมดทำขาย) · แพ็กและโมเดลจะขึ้นที่นี่เอง'],
+  'ui.packInfo': ['Pack', 'ข้อมูลแพ็ก'],
+  'ui.packName': ['Pack name (the Unity folder Assets/<pack>)', 'ชื่อแพ็ก (โฟลเดอร์ Assets/<แพ็ก> ใน Unity)'],
+  'ui.unityVer': ['Unity version you tested with', 'Unity เวอร์ชันที่ทดสอบ'],
+  'ui.unityVerHint': ['e.g. 6000.3.22f1', 'เช่น 6000.3.22f1'],
+  'ui.budget': ['Max triangles per model (optional — used by the Blender add-on)', 'งบสามเหลี่ยมสูงสุดต่อชิ้น (ไม่บังคับ — Blender add-on ใช้ค่านี้)'],
+  'ui.budgetHint': ['e.g. 2000', 'เช่น 2000'],
+  'ui.note': ['Pack notes', 'โน้ตของแพ็ก'],
+  'ui.noteHint': ['e.g. theme, how many models are planned', 'เช่น ธีม, จำนวนชิ้นที่วางแผน'],
+  'ui.summary': ['Whole pack', 'สรุปทั้งแพ็ก'],
+  'ui.summaryLine': ['Models {0} · done {1} · left {2}', 'โมเดล {0} ชิ้น · ผ่านครบ {1} · ค้าง {2}'],
+  'ui.totalTris': [' · {0} triangles in total', ' · รวม {0} สามเหลี่ยม'],
+  'ui.mixedTex': ['⚠ Texture sizes differ in this pack: {0}', '⚠ ขนาดเท็กซ์เจอร์ในแพ็กไม่เท่ากัน: {0}'],
+  'ui.noModelResults': ['No model results in this pack yet — press Check in Blender, then Export to Unity', 'ยังไม่มีผลตรวจของโมเดลในแพ็กนี้ — กด “ตรวจ” ใน Blender แล้ว “ส่งเข้า Unity”'],
+  'ui.tableCaption': ['Models in pack {0}', 'สถานะโมเดลในแพ็ก {0}'],
+  'ui.colModel': ['Model', 'โมเดล'], 'ui.colTris': ['Triangles', 'สามเหลี่ยม'], 'ui.colTex': ['Texture', 'เท็กซ์เจอร์'],
+  'ui.colGate1': ['Gate 1 (Blender)', 'ด่าน 1 (Blender)'], 'ui.colGate2': ['Gate 2 (Unity)', 'ด่าน 2 (Unity)'],
+  'ui.colProgress': ['Progress', 'ความคืบหน้า'], 'ui.colLeft': ['Still open', 'ยังค้าง'],
+  'ui.fixIn': ['{0} — fix in {1}', '{0} — แก้ใน {1}'],
+  'ui.allDone': ['✓ all done', '✓ ผ่านครบ'],
+  'ui.overBudget': ['⚠ over budget', '⚠ เกินงบ'],
+  'ui.copy': ['Copy', 'คัดลอก'], 'ui.copied': ['Copied', 'คัดลอกแล้ว'],
+  'ui.selectCopy': ['Text selected — press Ctrl+C', 'เลือกข้อความแล้ว — กด Ctrl+C'],
+  'ui.drafts': ['Store page drafts (English)', 'ร่างข้อความหน้าขาย (English)'],
+  'ui.draftsNote': ['Made from the real numbers of every model in the pack — check and edit before you paste them on the store page. “What you changed by hand” comes from the Unity window (Store mode).',
+                    'สร้างจากตัวเลขจริงของทุกโมเดลในแพ็ก — ตรวจ/แก้ก่อนวางในหน้าขาย · “สิ่งที่ปรับเองด้วยมือ” มาจากช่องในหน้าต่าง Unity (โหมดทำขาย) ถ้าเป็นภาษาไทยต้องแปลเอง'],
+  'ui.images': ['Store page images', 'ภาพหน้าขาย'],
+  'ui.imagesWhere': ['Put the files in <code>marketing/{0}/</code> of the Data folder: {1} and {2} …', 'วางไฟล์ใน <code>marketing/{0}/</code> ของโฟลเดอร์ข้อมูล: {1} และ {2} …'],
+  'ui.notConnected': ['No Data folder yet', 'ยังไม่ได้เชื่อมโฟลเดอร์ข้อมูล'],
+  'ui.reloaded': ['Results reloaded', 'โหลดผลตรวจใหม่แล้ว'],
+  'ui.exported': ['Exported', 'Export แล้ว'],
+  'ui.importAsk': ['Import {0} models (replacing {1} with the same id)?\nNothing else is deleted. Continue?', 'นำเข้า {0} โมเดล (ทับของเดิมที่ id ตรงกัน {1} ชิ้น)\nข้อมูลอื่นที่มีอยู่จะไม่ถูกลบ ดำเนินการต่อ?'],
+  'ui.imported': ['Imported {0} models', 'นำเข้า {0} โมเดลแล้ว'],
+  'ui.importBad': ['Not a valid file — use a JSON exported from this checklist or v2', 'ไฟล์ไม่ถูกต้อง — ใช้ไฟล์ JSON ที่ Export จากเช็คลิสต์นี้หรือ v2'],
+  'ui.readFail': ['The file cannot be read', 'อ่านไฟล์ไม่ได้'],
+  'ui.trbl': ['Common problems (reference, nothing to tick)', 'ปัญหาที่พบบ่อย (ตารางอ้างอิง ไม่ต้องติ๊ก)'],
+  'ui.trblHead': ['<th>Symptom</th><th>Likely cause</th><th>Fix</th>', '<th>อาการ</th><th>สาเหตุที่เป็นไปได้</th><th>วิธีแก้</th>'],
+  'ui.footer': ['With a Data folder connected, this page saves <code>state.json</code> there (and a backup in the browser). Results are read from <code>reports/</code> every 3 seconds, or press “Reload”. Use Chrome or Edge. Based on the Unity Asset Store Submission Guidelines as last checked (May 2026) — check the Publisher Portal again before you submit.',
+                'เมื่อเชื่อมโฟลเดอร์ข้อมูลแล้ว หน้านี้บันทึก <code>state.json</code> ในโฟลเดอร์นั้น (และสำรองไว้ในเบราว์เซอร์) ผลตรวจอ่านจาก <code>reports/</code> ทุก 3 วินาที หรือกด “โหลดใหม่” · ต้องเปิดด้วย Chrome หรือ Edge · อ้างอิงตาม Unity Asset Store Submission Guidelines ที่ตรวจสอบได้ล่าสุด (พ.ค. 2026) แนะนำเช็คซ้ำใน Publisher Portal ก่อน submit จริง'],
+};
+
+function T(key, ...args){
+  const pair = TEXT[key];
+  let s = pair ? pair[LANG === 'en' ? 0 : 1] : key;
+  args.forEach((a, i) => { s = s.split('{' + i + '}').join(String(a)); });
+  return s;
+}
+function setLang(lang){ LANG = lang === 'en' ? 'en' : 'th'; }
+function getLang(){ return LANG; }
+/* Catalog texts: Thai in t/d/title/note, English in .en */
+function loc(obj, field){ return LANG === 'en' && obj.en && obj.en[field] != null ? obj.en[field] : obj[field]; }
+
+const MODEL_PHASES = [
+  { id:'1', num:'01', short:'Blender', title:'เตรียมไฟล์ใน Blender ก่อน export',
+    note:'ตรวจด้วยปุ่ม Check หรือ Export to Unity ใน Blender add-on',
+    groups:[
+      { g:'ตรวจ Mesh', items:[
+        { id:'m1-1',  t:'Mesh เสีย: non-manifold / zero face / zero edge = 0', d:'นิยามเดียวกับ 3D-Print Toolbox — ข้าม Thickness / Overhang / Sharp เพราะเป็นเกณฑ์ของงานพิมพ์ 3D' },
+        { id:'m1-2',  t:'Intersect Faces ซ้อนกันแบบตั้งใจ', d:'ชิ้นที่ประกอบจากหลาย part ซ้อนกันได้ แต่ต้องไม่ใช่ face ซ้อนซ้ำหรือเศษจาก Meshy — ใช้ปุ่ม Select ใน Blender ดูจุดที่ตัดกัน' },
+        { id:'m1-3',  t:'ไม่มีจุดซ้อนและ loose geometry', d:'Merge by Distance และลบ loose geometry รวมถึง face ภายในที่มองไม่เห็นจากภายนอก' },
+        { id:'m1-4',  t:'ทิศ Normal ชี้ออกด้านนอก', d:'แก้ด้วย Shift+N (Recalculate Outside)' },
+        { id:'m1-5',  t:'Apply All Transforms', d:'Location/Rotation = 0 และ Scale = 1 ทุกแกน' },
+        { id:'m1-6',  t:'Triangulate Faces ก่อน export', d:'Ctrl+T ลด n-gon ที่อาจ triangulate ผิดฝั่งตอนเข้า Unity' },
+        { id:'m1-7',  t:'Pivot Point', d:'อยู่จุดฐานกลาง หรือจุดที่ผู้ใช้จะหยิบ/ถือวัตถุตามธรรมชาติ' }
+      ]},
+      { g:'ชื่อและ Material', items:[
+        { id:'m1-8',  t:'ชื่อ object / mesh / material / texture เรียบร้อย', d:'PascalCase ภาษาอังกฤษ ไม่มีเว้นวรรค ไม่มี <code>.001</code> และไม่ใช้ชื่อเริ่มต้นจาก Meshy เช่น <code>Mesh_0</code>' },
+        { id:'m1-9',  t:'ใช้ material น้อยที่สุด (แนะนำ 1 ต่อโมเดล)', d:'หลาย material = หลาย draw call ต่อชิ้น ถ้าต้องมีมากกว่า 1 ให้มีเหตุผลชัดเจน' }
+      ]},
+      { g:'UV และ Texture', items:[
+        { id:'m1-10', t:'UV อยู่ในกรอบ 0–1 และไม่ซ้อนกันโดยไม่ตั้งใจ', d:'ซ้อนได้เฉพาะกรณี mirror ที่ตั้งใจ' },
+        { id:'m1-11', t:'Texel density สม่ำเสมอกับชิ้นอื่นในแพ็ก', d:'เทียบกับค่ากลางของชิ้นอื่นในแพ็กที่ตรวจแล้ว' },
+        { id:'m1-12', t:'ขนาด texture เป็นเลขยกกำลังสอง และเท่ากันทั้งแพ็ก', d:'เช่น 1024 หรือ 2048' },
+        { id:'m1-13', t:'Base color ไม่มีเงา/ไฮไลต์ที่ถูกอบมาจาก Meshy', d:'ดู texture ตรงๆ ถ้ามีเงาหรือประกายติดมา เมื่อวางในฉาก URP ที่มีแสงของตัวเองจะดูซ้อนและเพี้ยน' }
+      ]},
+      { g:'Export', items:[
+        { id:'m1-14', t:'FBX export ด้วยค่าที่ถูกต้อง', d:'Scene Unit = Metric (Scale 1.0), Forward <code>-Z</code>, Up <code>Y</code>, Apply Transform ✓, ไม่ embed texture และตรงกับ scene' },
+        { id:'m1-15', t:'ตัวเลขของโมเดล', d:'tris, ขนาด texture, จำนวน material และ object — กรอกให้จาก Blender report และเทียบงบ tris ของแพ็ก' },
+        { id:'m1-16', t:'จำนวน polygon เหมาะกับงาน', d:'faces / tris / vertices / edges พร้อมคำแนะนำว่าเหมาะกับงานประเภทไหน (ช่วงแนะนำจากแหล่งในวงการ ไม่ใช่กฎ) — ยืนยันใน Blender' }
+      ]}
+    ]
+  },
+  { id:'2', num:'02', short:'Unity URP', title:'ทดสอบใน Unity (URP)',
+    note:'ตรวจด้วย Unity tool ในโปรเจกต์ทดสอบ URP (มาใน M3)',
+    groups:[
+      { g:'Import', items:[
+        { id:'m2-1',  t:'Import FBX + Textures เข้าโปรเจกต์ทดสอบ URP' },
+        { id:'m2-2',  t:'ตั้งค่า Model import', d:'Scale Factor = 1, Normals = Import, Tangents = Calculate, Mesh Compression = Off, Read/Write ปิดไว้ถ้าไม่จำเป็น' },
+        { id:'m2-3',  t:'Materials Location = Use External Materials' },
+        { id:'m2-4',  t:'ตั้งค่า Texture แต่ละชนิดให้ถูก', d:'Base Map: sRGB เปิด · Normal map: Texture Type = Normal Map · Metallic/Mask: sRGB ปิด · Max Size ตรงกับที่ตั้งไว้' }
+      ]},
+      { g:'Material (URP/Lit)', items:[
+        { id:'m2-5',  t:'Shader = <code>Universal Render Pipeline/Lit</code>' },
+        { id:'m2-6',  t:'Map Base Map / Normal Map / Metallic ถูก slot' },
+        { id:'m2-7',  t:'แปลง Roughness จาก Meshy เป็น Smoothness', d:'URP/Lit ใช้ Smoothness ไม่ใช่ Roughness' },
+        { id:'m2-8',  t:'Surface Type ถูก', d:'Opaque หรือ Transparent ตามชิ้นงาน' },
+        { id:'m2-9',  t:'โปรเจกต์ผูก URP Asset ใน Graphics/Quality Settings แล้ว' }
+      ]},
+      { g:'Prefab', items:[
+        { id:'m2-10', t:'Prefab ของโมเดล', d:'ชื่อ prefab = ชื่อโมเดล, material ผูกครบ ไม่มี missing reference' },
+        { id:'m2-11', t:'Static mesh มี Collider ขนาดพอดี' },
+        { id:'m2-12', t:'ถ้ามี LOD ตั้ง LOD Group component' }
+      ]}
+    ],
+    callout:'<strong>ถ้าวันหน้ามีชิ้นที่ใช้ vertex color</strong> — URP/Lit ไม่อ่าน vertex color ให้อัตโนมัติ ต้องสร้าง Shader Graph แล้วต่อ node <code>Vertex Color</code> เข้า Base Color และส่ง shader นั้นมาในแพ็กด้วย'
+  },
+  { id:'3', num:'03', short:'Render', title:'Rendering Test',
+    groups:[
+      { items:[
+        { id:'m3-1', t:'Color Space = Linear' },
+        { id:'m3-2', t:'ฉากและแสงทดสอบมาตรฐานเดียวกันทุกโมเดล' },
+        { id:'m3-3', t:'Normal map ไม่ inverted', d:'ดูขอบเงาเว้า-นูนว่าทิศถูกไหม' },
+        { id:'m3-4', t:'ไม่มี z-fighting, shading artifact หรือ shadow acne' },
+        { id:'m3-5', t:'สเกลถูกต้อง', d:'เทียบกับ reference cube 1×1×1m' },
+        { id:'m3-6', t:'Pivot point ถูกจุดใน Unity' },
+        { id:'m3-7', t:'Console ไม่มี error/warning ตอน import และเปิดฉาก' },
+        { id:'m3-8', t:'Screenshot มุมมาตรฐาน', d:'ใช้ทำภาพขายได้เลย' }
+      ]}
+    ]
+  },
+  { id:'4', num:'04', short:'ที่มา Meshy/AI', title:'ที่มาของโมเดล (Meshy / AI)', fields:'lic',
+    groups:[
+      { items:[
+        { id:'m4-1', t:'ยืนยันแล้วว่าแพลน Meshy ตอนเจนอนุญาตให้ใช้เชิงพาณิชย์', d:'ตรวจเงื่อนไขล่าสุดบนเว็บ Meshy เพราะข้อกำหนดของแต่ละแพลนอาจต่างกันและเปลี่ยนได้' },
+        { id:'m4-2', t:'เก็บหลักฐานต้นทางไว้แล้ว', d:'ภาพอ้างอิง/prompt และไฟล์หรือ task ของ Meshy เก็บไว้ในโฟลเดอร์ต้นทาง' },
+        { id:'m4-3', t:'โมเดลและ texture ไม่มีโลโก้ ชื่อ หรือตัวละครของ IP คนอื่น', d:'เช็คทั้งรูปทรงที่ AI สร้างมาและตัวอักษรบน texture' },
+        { id:'m4-4', t:'บันทึกสิ่งที่ปรับเองด้วยมือลงช่องด้านบนแล้ว', d:'ใช้ประกอบ AI description ของแพ็ก' }
+      ]}
+    ]
+  }
+];
+
+const PACK_PHASES = [
+  { id:'A', num:'A', short:'Package', title:'เตรียม Package สำหรับ Asset Store', en:{ title:'Get the package ready for the Asset Store' },
+    groups:[
+      { items:[
+        { id:'k1-1', t:'จัดโฟลเดอร์ตามประเภท', d:'Meshes / Materials / Textures / Prefabs / Demo Scenes', en:{ t:'Folders by type', d:'Meshes / Materials / Textures / Prefabs / Demo Scenes' } },
+        { id:'k1-2', t:'path แต่ละไฟล์ไม่เกิน 150 ตัวอักษร', d:'นับจาก <code>Assets/</code>', en:{ t:'No file path longer than 150 characters', d:'counted from <code>Assets/</code>' } },
+        { id:'k1-3', t:'มี Demo Scene โชว์ของจริง', d:'บังคับสำหรับ category 3D', en:{ t:'A demo scene shows the models', d:'required for the 3D category' } },
+        { id:'k1-4', t:'ประกาศชัดว่ารองรับ URP เท่านั้น', d:'ระบุใน README ว่า URP และ Unity เวอร์ชันที่ทดสอบ', en:{ t:'States clearly that it is URP only', d:'the README names URP and the Unity version you tested with' } },
+        { id:'k1-5', t:'รองรับ Unity 2022.3+ บน URP', en:{ t:'Works on Unity 2022.3+ with URP' } },
+        { id:'k1-6', t:'Third-Party Notices.txt', d:'ถ้ามีใช้ font/audio/ทรัพยากรภายนอก', en:{ t:'Third-Party Notices.txt', d:"if the pack uses fonts / audio / other people's assets" } },
+        { id:'k1-7', t:'กรอกช่อง AI description', d:'เปิดเผยว่าใช้ AI ทำภาพอ้างอิงและแปลงเป็น 3D พร้อมสิ่งที่ปรับเอง — ห้ามใช้คำที่สื่อว่าทำมือทั้งหมด', en:{ t:'Fill in the AI description', d:'say that AI made the references and the 3D base, and what you changed by hand — never imply it is all hand-made' } },
+        { id:'k1-8', t:'Description ระบุรายละเอียดเทคนิคครบ', d:'จำนวน object, polygon count, ขนาด texture, pipeline, ชนิด texture map', en:{ t:'The description lists the technical details', d:'number of objects, polygon count, texture size, pipeline, texture maps' } },
+        { id:'k1-9', t:'มีเอกสารสั้นๆ (README / Documentation)', en:{ t:'Short documentation (README / Documentation)' } },
+        { id:'k1-10', t:'ชื่อแพ็ก คำค้น และภาพบนหน้าขายไม่ใช้ชื่อหรือ IP ของเกม/แบรนด์อื่น', en:{ t:"Pack name, keywords and store images use no other game's or brand's name or IP" } }
+      ]}
+    ]
+  },
+  { id:'B', num:'B', short:'Key art', title:'Key Art & Marketing Images',
+    en:{ title:'Key Art & Marketing Images', note:'Rules for every image (Unity Asset Store): no Unity logo, sale badge or watermark · no default Unity skybox, not even as a background · not blurry, stretched or cropped · not just a screenshot of the Unity Editor · as little text as possible · design each size on its own, do not scale a big image down, so the models in the small ones still read' },
+    note:'กติกาทุกภาพ (ตาม Unity Asset Store): ห้ามมีโลโก้ Unity, ป้ายลดราคา หรือ watermark · ห้ามใช้ skybox เริ่มต้นของ Unity แม้เป็นพื้นหลัง · ห้ามเบลอ ยืด หรือครอปจนขาด · ห้ามเป็นแค่ภาพหน้าจอ Unity Editor · ใส่ตัวหนังสือให้น้อยที่สุด · ออกแบบแยกทีละขนาด อย่าย่อภาพใหญ่ลงมา เพื่อให้ของในภาพเล็กยังดูออก',
+    groups:[
+      { items:[
+        { id:'k2-1', t:'Icon <span class="mono">160×160 px</span>', d:'รูปเล็กในตาราง icon ตอนลูกค้าเลื่อนดูร้าน (แสดงจริงแค่ 80×80) · <b>ห้ามมีตัวหนังสือ</b> · ใช้ของชิ้นเด่น 1–3 ชิ้น ตัดขอบชัด พื้นหลังเรียบ', en:{ t:'Icon <span class="mono">160×160 px</span>', d:"the small picture in the store's icon grid (shown at only 80×80) · <b>no text at all</b> · 1–3 hero models, clear outline, plain background" } },
+        { id:'k2-2', t:'Card <span class="mono">420×280 px</span>', d:'ภาพปกในหน้าแรกและหน้ารายการสินค้า — ภาพแรกที่ลูกค้าเห็นก่อนคลิก · ตัวหนังสือได้แค่<b>ชื่อแพ็ก</b>และ<b>ชื่อ/โลโก้ผู้ขาย</b> · โชว์ของหลายชิ้นในแพ็กให้เห็นว่าได้อะไร', en:{ t:'Card <span class="mono">420×280 px</span>', d:'the thumbnail on the home page and in lists — the first picture buyers see · text only for the <b>pack name</b> and <b>publisher name/logo</b> · show several models of the pack' } },
+        { id:'k2-3', t:'Cover / Key Image <span class="mono">1950×1300 px</span>', d:'ภาพใหญ่บนสุดของหน้าสินค้า · ตัวหนังสือได้แค่<b>ชื่อแพ็ก</b>, <b>ชื่อ/โลโก้ผู้ขาย</b> และ<b>คำโปรย 1 ประโยค</b> · จัดฉากรวมของทั้งแพ็กให้ดูเป็นโลกเดียวกัน', en:{ t:'Cover / Key Image <span class="mono">1950×1300 px</span>', d:'the big picture at the top of the product page · text only for the <b>pack name</b>, <b>publisher name/logo</b> and <b>one tagline</b> · stage the whole pack as one world' } },
+        { id:'k2-4', t:'Social Media Image <span class="mono">1200×630 px</span>', d:'ไม่บังคับ — ทีม Unity อาจเอาไปโพสต์โซเชียลหรือหน้าแรกของร้าน · <b>ห้ามมีตัวหนังสือ</b> (มีแล้วอาจไม่ถูกเลือกไปโปรโมท)', en:{ t:'Social Media Image <span class="mono">1200×630 px</span>', d:'optional — Unity may post it on social media or the store home page · <b>no text at all</b> (with text it may not be picked for promotion)' } },
+        { id:'k2-5', t:'Screenshots 5–10 ภาพ', d:'PNG 24-bit ไม่มี alpha, อัตราส่วน 3:2 (กว้างอย่างน้อย 1200 px) · โชว์ของแต่ละชิ้นหลายมุม, ฉาก Demo, ภาพใกล้ให้เห็น texture, wireframe/poly count และถ้ามีหลายสีให้โชว์ครบ · screenshot จาก Unity (m3-8) ใช้เป็นจุดตั้งต้นได้', en:{ t:'Screenshots, 5–10 images', d:'PNG 24-bit without alpha, 3:2 (at least 1200 px wide) · each model from several angles, the demo scene, close-ups of the texture, wireframe/poly count, every colour variant · the Unity screenshot (m3-8) is a good start' } }
+      ]}
+    ]
+  },
+  { id:'C', num:'C', short:'Final QA', title:'Final QA ก่อนกด Submit', en:{ title:'Final QA before you submit' },
+    groups:[
+      { items:[
+        { id:'k3-1', t:'ทุกโมเดลในแพ็กผ่าน Gate 2 ครบ', en:{ t:'Every model of the pack passes Gate 2' } },
+        { id:'k3-2', t:'ไม่มีชิ้นไหนถูกแก้หลังตรวจ (ผลเก่า)', en:{ t:'No model was changed after it was checked (out of date)' } },
+        { id:'k3-3', t:'ทุกชิ้นกลมกลืนกันเมื่อวางใน Demo Scene เดียว', d:'texel density และโทนสี', en:{ t:'All models look like one set in the same demo scene', d:'texel density and colour tone' } },
+        { id:'k3-4', t:'Export .unitypackage แล้ว Import ใน fresh URP project ใหม่', d:'ไม่มี missing reference และ material ไม่ชมพู', en:{ t:'Export a .unitypackage and import it into a fresh URP project', d:'no missing references, no pink materials' } },
+        { id:'k3-5', t:'ทดสอบทั้ง Unity เวอร์ชันต่ำสุดที่รองรับและเวอร์ชันใหม่ล่าสุด', en:{ t:'Test on the lowest and the newest Unity version you support' } },
+        { id:'k3-6', t:'เปิด Demo scene แล้วไม่มี console error/warning', en:{ t:'The demo scene opens without console errors/warnings' } },
+        { id:'k3-7', t:'ไม่มีไฟล์ที่ไม่ได้ใช้ในแพ็ก', en:{ t:'No unused files in the pack' } },
+        { id:'k3-8', t:'ทบทวน AI description และ Third-Party Notices.txt อีกรอบ', en:{ t:'Read the AI description and Third-Party Notices.txt once more' } },
+        { id:'k3-9', t:'ตั้งราคาเทียบกับคู่แข่งในหมวดเดียวกัน', en:{ t:'Set a price against similar packs in the same category' } },
+        { id:'k3-10', t:'Publisher account มีอีเมล/เว็บไซต์ active', en:{ t:'The publisher account has a working e-mail/website' } }
+      ]}
+    ]
+  }
+];
+
+const ids = phases => phases.flatMap(p => p.groups.flatMap(g => g.items.map(i => i.id)));
+const MODEL_IDS = ids(MODEL_PHASES);
+const PACK_IDS = ids(PACK_PHASES);
+
+/* Where each automatic result comes from (SPEC §5). Anything not listed is a manual tick. */
+const SOURCE = {};
+// Every model item comes from Blender or Unity since M7 (SPEC D19): m1-13, m3-4 and m4-* are confirmed there.
+MODEL_IDS.filter(id => id.startsWith('m1-')).forEach(id => { SOURCE[id] = 'blender'; });
+MODEL_IDS.filter(id => !id.startsWith('m1-')).forEach(id => { SOURCE[id] = 'unity'; });
+['k1-1','k1-2','k1-3','k1-4','k1-6','k1-9','k3-6','k3-7'].forEach(id => { SOURCE[id] = 'unityPack'; });
+// Computed by this page: model results, marketing images in the Data folder, generated drafts.
+['k3-1','k3-2','k1-8','k2-1','k2-2','k2-3','k2-4','k2-5'].forEach(id => { SOURCE[id] = 'page'; });
+
+const isManual = id => !SOURCE[id];
+const SOURCE_NAME = { blender:'Blender', unity:'Unity', unityPack:'Unity', get page(){ return T('source.page'); } };
+
+const UNSAFE = new Set(['__proto__','constructor','prototype']);
+const NO_PACK = '(ไม่ระบุแพ็ก)';
+const MODEL_ID_SET = new Set(MODEL_IDS);
+const PACK_ID_SET = new Set(PACK_IDS);
+
+const str = v => typeof v === 'string' ? v : (typeof v === 'number' ? String(v) : '');
+function trueMap(o, allowed){
+  const r = {};
+  if (o && typeof o === 'object') for (const k of Object.keys(o)) if (o[k] === true && allowed.has(k)) r[k] = true;
+  return r;
+}
+function reasonMap(o, allowed){
+  const r = {};
+  if (o && typeof o === 'object') for (const k of Object.keys(o)) if (allowed.has(k) && typeof o[k] === 'string' && o[k].trim()) r[k] = o[k].trim();
+  return r;
+}
+
+function localDate(d){
+  d = d || new Date();
+  const p = n => String(n).padStart(2,'0');
+  return d.getFullYear() + '-' + p(d.getMonth()+1) + '-' + p(d.getDate());
+}
+function uid(){ return 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+function blankModel(id){
+  return { id: id || uid(), name:'', pack:'', mat:'Texture (Meshy)', date: localDate(), note:'',
+    stats:{ tris:'', tex:'', mats:'', objs:'' }, lic:{ plan:'', genDate:'', manual:'' },
+    checks:{}, confirms:{}, overrides:{}, updated: Date.now() };
+}
+function blankPack(){ return { checks:{}, confirms:{}, overrides:{}, budget:'', unityVer:'', note:'' }; }
+
+/* v2 fields are kept as they were; v3 adds confirms/overrides (SPEC §6). */
+function normModel(m, id){
+  const b = blankModel(id); m = (m && typeof m === 'object') ? m : {};
+  b.name = str(m.name); b.pack = str(m.pack); b.mat = str(m.mat) || b.mat; b.date = str(m.date) || b.date; b.note = str(m.note);
+  const s = m.stats || {}; b.stats = { tris:str(s.tris), tex:str(s.tex), mats:str(s.mats), objs:str(s.objs) };
+  const l = m.lic || {};   b.lic = { plan:str(l.plan), genDate:str(l.genDate), manual:str(l.manual) };
+  b.checks = trueMap(m.checks, MODEL_ID_SET);
+  b.confirms = trueMap(m.confirms, MODEL_ID_SET);
+  b.overrides = reasonMap(m.overrides, MODEL_ID_SET);
+  b.updated = +m.updated || Date.now();
+  return b;
+}
+function normPack(p){
+  p = (p && typeof p === 'object') ? p : {};
+  return { checks: trueMap(p.checks, PACK_ID_SET), confirms: trueMap(p.confirms, PACK_ID_SET),
+    overrides: reasonMap(p.overrides, PACK_ID_SET), budget:str(p.budget), unityVer:str(p.unityVer), note:str(p.note) };
+}
+function blankState(){ return { v:3, view:'model', currentId:null, currentPack:null, lastExport:null, models:{}, packs:{} }; }
+
+/* Accepts state v2 (checklist HTML) or v3 and returns v3. */
+function normalize(s){
+  const b = blankState(); if (!s || typeof s !== 'object') return b;
+  if (s.view === 'pack' || s.view === 'model') b.view = s.view;
+  if (typeof s.currentPack === 'string') b.currentPack = s.currentPack;
+  if (typeof s.lastExport === 'number') b.lastExport = s.lastExport;
+  if (s.models && typeof s.models === 'object') for (const id of Object.keys(s.models)) if (!UNSAFE.has(id)) b.models[id] = normModel(s.models[id], id);
+  if (s.packs && typeof s.packs === 'object') for (const n of Object.keys(s.packs)) if (!UNSAFE.has(n)) b.packs[n] = normPack(s.packs[n]);
+  b.currentId = (typeof s.currentId === 'string' && b.models[s.currentId]) ? s.currentId : (Object.keys(b.models)[0] || null);
+  return b;
+}
+
+const packOf = m => { const n = m.pack.trim() || NO_PACK; return UNSAFE.has(n) ? n + '_' : n; };
+const reportKey = (pack, model) => pack.trim() + '\u0000' + model.trim();
+
+/* ---------- reports ---------- */
+const REPORT_FILE = /^(.+)\.(blender|unity)\.json$/;
+const CONFIRMS_FILE = /^(.+)\.(blender|unity)\.confirms\.json$/;
+
+/* Confirmations made in Blender / Unity (SPEC D11): { 'm1-9': { values, confirmedAt } } */
+function validConfirms(c){
+  return !!c && typeof c === 'object' && c.schema === 1 && (c.tool === 'blender' || c.tool === 'unity')
+    && typeof c.pack === 'string' && !!c.confirms && typeof c.confirms === 'object';
+}
+
+function sameJson(a, b){
+  if (a === b) return true;
+  if (typeof a !== 'object' || typeof b !== 'object' || !a || !b || Array.isArray(a) !== Array.isArray(b)) return false;
+  const ka = Object.keys(a), kb = Object.keys(b);
+  return ka.length === kb.length && ka.every(k => Object.prototype.hasOwnProperty.call(b, k) && sameJson(a[k], b[k]));
+}
+
+/* Basic shape check; the full contract is schema/report.schema.json. */
+function validReport(r){
+  return !!r && typeof r === 'object' && r.schema === 1 && (r.tool === 'blender' || r.tool === 'unity')
+    && typeof r.pack === 'string' && r.checks && typeof r.checks === 'object';
+}
+
+/* files: [{pack: folder name, name: file name, data: parsed JSON}] -> index */
+function indexReports(files){
+  const index = { blender:{}, unity:{}, packUnity:{}, confirms:{ blender:{}, unity:{}, packUnity:{} }, errors:[] };
+  for (const f of files) {
+    if (f.name.endsWith('.store.json')) continue;   // Unity's own notes (m4-*); the page reads them from the Unity report
+    if (f.name.endsWith('.confirms.json')) {
+      const c = f.data, m = CONFIRMS_FILE.exec(f.name);
+      if (!validConfirms(c) || !m) { index.errors.push(f.pack + '/' + f.name); continue; }
+      if (f.name === '_pack.unity.confirms.json') { if (c.scope === 'pack') index.confirms.packUnity[c.pack] = c.confirms; }
+      else if (c.scope === 'model' && typeof c.model === 'string') index.confirms[c.tool][reportKey(c.pack, c.model)] = c.confirms;
+      else index.errors.push(f.pack + '/' + f.name);
+      continue;
+    }
+    if (!validReport(f.data)) { index.errors.push(f.pack + '/' + f.name); continue; }
+    const r = f.data;
+    if (f.name === '_pack.unity.json') { if (r.scope === 'pack') index.packUnity[r.pack] = r; continue; }
+    const m = REPORT_FILE.exec(f.name);
+    if (!m || r.scope !== 'model' || typeof r.model !== 'string') { index.errors.push(f.pack + '/' + f.name); continue; }
+    index[r.tool][reportKey(r.pack, r.model)] = r;
+  }
+  return index;
+}
+
+function reportsFor(model, index){
+  const key = reportKey(model.pack, model.name);
+  const confirms = index.confirms || { blender:{}, unity:{} };
+  return { blender: index.blender[key] || null, unity: index.unity[key] || null,
+    confirms: { blender: confirms.blender[key] || null, unity: confirms.unity[key] || null } };
+}
+
+/* The page lists what Blender / Unity checked (SPEC M7): packs and models come from the reports.
+   A model typed into state.json before M7 lends its saved confirmations, overrides and notes. */
+function reportPackNames(state, index){
+  const s = new Set();
+  for (const tool of ['blender', 'unity']) Object.values(index[tool]).forEach(r => s.add(r.pack.trim()));
+  Object.keys(index.packUnity).forEach(n => s.add(n.trim()));
+  return [...s].filter(n => n && !UNSAFE.has(n)).sort((a, b) => a.localeCompare(b));
+}
+
+function packModels(state, index, packName){
+  const names = new Set();
+  for (const tool of ['blender', 'unity'])
+    Object.values(index[tool]).forEach(r => { if (r.pack.trim() === packName) names.add(r.model.trim()); });
+  const saved = {};
+  Object.values(state.models).forEach(m => { saved[reportKey(m.pack, m.name)] = m; });
+  return [...names].sort((a, b) => a.localeCompare(b)).map(name => {
+    const key = reportKey(packName, name);
+    const m = saved[key] || Object.assign(blankModel('r:' + packName + '/' + name), { name, pack: packName });
+    syncStats(m, index.blender[key] || null);
+    return m;
+  });
+}
+
+/* "What you changed by hand": typed in Unity (m4-4) since M7, else what was typed in this page before. */
+function manualNotes(m, summaries){
+  const u = summaries && summaries[m.id] && summaries[m.id].reports.unity;
+  const c = u && u.checks['m4-4'];
+  const typed = c && c.values && typeof c.values.manual === 'string' ? c.values.manual : m.lic.manual;
+  return (typed || '').trim();
+}
+
+/* Reports whose model is not in the state yet: [{pack, model}] */
+function orphanReports(state, index){
+  const known = new Set(Object.values(state.models).map(m => reportKey(m.pack, m.name)));
+  const seen = new Set(), out = [];
+  for (const r of [...Object.values(index.blender), ...Object.values(index.unity)]) {
+    const key = reportKey(r.pack, r.model);
+    if (known.has(key) || seen.has(key)) continue;
+    seen.add(key); out.push({ pack:r.pack, model:r.model });
+  }
+  return out;
+}
+
+/* ---------- statuses ---------- */
+/* status: pass | fail | review | na | pending | stale | manual
+   passed: counts toward progress (SPEC §4) */
+/* toolConfirms: confirmations from the report's own tool; one counts only while the values are unchanged. */
+function resolve(id, base, detail, values, holder, toolConfirms, tool){
+  const entry = toolConfirms && toolConfirms[id];
+  const confirmedBy = base === 'review' && entry && sameJson(entry.values, values || {}) ? tool : '';
+  const confirmed = !!holder.confirms[id] || !!confirmedBy;
+  const override = holder.overrides[id] || '';
+  let passed = base === 'pass' || base === 'na';
+  if (base === 'review') passed = confirmed;
+  if (base === 'fail') passed = !!override;
+  return { id, status:base, detail:detail || '', values:values || {}, confirmed, confirmedBy, override, passed, source:SOURCE[id] || 'manual' };
+}
+
+function isStale(reports){
+  const b = reports.blender, u = reports.unity;
+  return !!(b && u && b.source && u.source && b.source.fbxSha256 !== u.source.fbxSha256);
+}
+
+function modelItemStatus(id, model, reports){
+  if (isManual(id)) return { id, status:'manual', detail:'', values:{}, confirmed:false, override:'', passed:!!model.checks[id], source:'manual' };
+  const src = SOURCE[id];
+  const rep = reports[src];
+  if (!rep) return resolve(id, 'pending', src === 'blender' ? T('res.noBlender') : T('res.noUnity'), {}, model);
+  if (src === 'unity' && isStale(reports)) return resolve(id, 'stale', T('res.stale'), {}, model);
+  const c = rep.checks[id];
+  if (!c) return resolve(id, 'pending', T('res.notInReport'), {}, model);
+  return resolve(id, c.status, c.detail, c.values, model, reports.confirms && reports.confirms[src], src);
+}
+
+function modelSummary(model, index){
+  const reports = reportsFor(model, index);
+  const items = {};
+  for (const id of MODEL_IDS) items[id] = modelItemStatus(id, model, reports);
+  const all = MODEL_IDS.map(id => items[id]);
+  const g1 = all.filter(s => s.id.startsWith('m1-'));
+  const g2 = all.filter(s => !s.id.startsWith('m1-'));
+  const gate1 = g1.every(s => s.passed);
+  const gate2 = gate1 && g2.every(s => s.passed);
+  return { reports, items, done: all.filter(s => s.passed).length, total: all.length,
+    gate1, gate2, stale: isStale(reports),
+    gate1Fails: g1.filter(s => s.status === 'fail' && !s.passed).length,
+    gate1Waiting: g1.filter(s => !s.passed && s.status !== 'fail').length,
+    gate2Fails: g2.filter(s => (s.status === 'fail' || s.status === 'stale') && !s.passed).length,
+    gate2Waiting: g2.filter(s => !s.passed && s.status !== 'fail' && s.status !== 'stale').length };
+}
+
+/* ---------- marketing images (k2-*) ----------
+   images: { fileName: { width, height, format: 'PNG' | 'JPG' | ..., alpha: bool } } from marketing/<pack>/,
+   or null when the folder does not exist. cfg: config.json (null until it has been read). */
+const MARKETING_KEYS = { 'k2-1':'icon', 'k2-2':'card', 'k2-3':'cover', 'k2-4':'social' };
+
+function ratioOk(w, h, aspect){
+  const [aw, ah] = aspect.split(':').map(Number);
+  return w * ah === h * aw;
+}
+
+function marketingStatus(id, pack, images, cfg){
+  if (!cfg || !cfg.marketing || !cfg.marketing.files) return resolve(id, 'pending', T('res.noConfig'), {}, pack);
+  const mk = cfg.marketing, names = mk.files;
+  if (!images) return resolve(id, 'pending', T('res.noMarketing'), {}, pack);
+  const byLower = {};
+  Object.keys(images).forEach(n => { byLower[n.toLowerCase()] = n; });
+
+  if (MARKETING_KEYS[id]) {
+    const key = MARKETING_KEYS[id], spec = mk[key], file = names[key];
+    const found = byLower[file.toLowerCase()];
+    if (!found) {
+      return spec.required === false
+        ? resolve(id, 'na', T('res.optionalMissing', file), {}, pack)
+        : resolve(id, 'fail', T('res.fileMissing', file), { expected:file }, pack);
+    }
+    const img = images[found];
+    const values = { file:found, width:img.width, height:img.height };
+    return img.width === spec.width && img.height === spec.height
+      ? resolve(id, 'pass', '', values, pack)
+      : resolve(id, 'fail', T('res.wrongSize', found, img.width, img.height, spec.width, spec.height), values, pack);
+  }
+
+  // k2-5 screenshots
+  const s = mk.screenshots, prefix = names.screenshotPrefix.toLowerCase();
+  const shots = Object.keys(images).filter(n => n.toLowerCase().startsWith(prefix)).sort();
+  const problems = [];
+  if (shots.length < s.min || shots.length > s.max) problems.push(T('res.shotCount', shots.length, s.min, s.max));
+  shots.forEach(n => {
+    const img = images[n], issues = [];
+    if (!ratioOk(img.width, img.height, s.aspect)) issues.push(T('res.notRatio', img.width, img.height, s.aspect));
+    if (img.format !== s.format) issues.push(T('res.notFormat', s.format));
+    if (!s.alpha && img.alpha) issues.push(T('res.hasAlpha'));
+    if (issues.length) problems.push(n + ': ' + issues.join(', '));
+  });
+  const values = { count:shots.length, files:shots };
+  return problems.length ? resolve(id, 'fail', problems.join(' · '), values, pack) : resolve(id, 'pass', '', values, pack);
+}
+
+/* ---------- drafts for the store page (English, SPEC M4) ---------- */
+function range(nums){
+  const v = nums.filter(n => n > 0);
+  if (!v.length) return '';
+  const lo = Math.min(...v), hi = Math.max(...v);
+  return lo === hi ? lo.toLocaleString('en-US') : lo.toLocaleString('en-US') + '–' + hi.toLocaleString('en-US');
+}
+
+const MAP_NAMES = { _BaseMap:'Base Color', _BumpMap:'Normal', _MetallicGlossMap:'Metallic/Smoothness' };
+
+function technicalDraft(packName, pack, models, summaries){
+  if (!models.length) return '';
+  const num = (m, k) => parseInt(m.stats[k], 10) || 0;
+  const tris = models.map(m => num(m, 'tris')), tex = [...new Set(models.map(m => num(m, 'tex')).filter(Boolean))];
+  const maps = new Set();
+  models.forEach(m => {
+    const u = summaries[m.id].reports.unity, slots = u && u.checks['m2-6'] && u.checks['m2-6'].values.slots;
+    (slots || []).forEach(s => { const k = String(s).split('=')[0]; if (MAP_NAMES[k]) maps.add(MAP_NAMES[k]); });
+  });
+  const lines = [
+    packName + ' — technical details',
+    '- Models: ' + models.length + ' (' + models.map(m => m.name.trim() || '?').join(', ') + ')',
+    '- Polygon count: ' + range(tris) + ' triangles per model, ' + tris.reduce((a, b) => a + b, 0).toLocaleString('en-US') + ' in total',
+    '- Texture size: ' + (tex.length ? tex.map(t => t + '×' + t).join(', ') : '(fill in)') + ' PNG',
+    '- Texture maps: ' + (maps.size ? [...maps].join(', ') : '(fill in)'),
+    '- Materials per model: ' + range(models.map(m => num(m, 'mats'))),
+    '- Render pipeline: URP only' + (pack.unityVer ? ' (tested with Unity ' + pack.unityVer + ')' : ' (add the tested Unity version)'),
+    '- Prefabs with colliders included',
+  ];
+  return lines.join('\n');
+}
+
+/* Generator / plan typed in Unity (m4-1), else what was typed in this page before. */
+function toolOf(m, summaries){
+  const u = summaries && summaries[m.id] && summaries[m.id].reports.unity;
+  const c = u && u.checks['m4-1'];
+  const typed = c && c.values && typeof c.values.plan === 'string' ? c.values.plan : m.lic.plan;
+  return (typed || '').trim();
+}
+
+function aiDraft(models, summaries){
+  if (!models.length) return '';
+  const tools = [...new Set(models.map(m => toolOf(m, summaries)).filter(Boolean))];
+  const lines = [
+    'AI disclosure',
+    'AI tools were used to create the base models (' + (tools.length ? tools.join(', ') : 'name the AI tools you used') +
+      '). Every model was then reworked by hand:',
+  ];
+  models.forEach(m => lines.push('- ' + (m.name.trim() || '?') + ': ' + (manualNotes(m, summaries) || '(describe the manual work)')));
+  return lines.join('\n');
+}
+
+function packItemStatus(id, pack, models, summaries, packReport, marketing, packConfirms){
+  if (isManual(id)) return { id, status:'manual', detail:'', values:{}, confirmed:false, override:'', passed:!!pack.checks[id], source:'manual' };
+  const src = SOURCE[id];
+  if (id.startsWith('k2-')) return marketingStatus(id, pack, marketing ? marketing.images : null, marketing ? marketing.cfg : null);
+  if (id === 'k1-8') {
+    return models.length
+      ? resolve(id, 'review', T('res.techDraft'), { models:models.length }, pack)
+      : resolve(id, 'pending', T('res.noModels'), {}, pack);
+  }
+  if (src === 'unityPack') {
+    const c = packReport && packReport.checks[id];
+    return c ? resolve(id, c.status, c.detail, c.values, pack, packConfirms, 'unity') : resolve(id, 'pending', T('res.noPackReport'), {}, pack);
+  }
+  if (!models.length) return resolve(id, 'pending', T('res.noModels'), {}, pack);
+  if (id === 'k3-1') {
+    const left = models.filter(m => !summaries[m.id].gate2);
+    return left.length
+      ? resolve(id, 'fail', T('res.notGate2', left.map(m => m.name.trim() || T('res.unnamed')).join(', ')), { left:left.length }, pack)
+      : resolve(id, 'pass', '', { models:models.length }, pack);
+  }
+  // k3-2: nothing edited after it was checked in Unity
+  const stale = models.filter(m => summaries[m.id].stale);
+  if (stale.length) return resolve(id, 'fail', T('res.staleModels', stale.map(m => m.name).join(', ')), { stale:stale.length }, pack);
+  const unchecked = models.filter(m => !summaries[m.id].reports.unity);
+  if (unchecked.length) return resolve(id, 'pending', T('res.notCheckedUnity', unchecked.map(m => m.name.trim() || T('res.unnamed')).join(', ')), {}, pack);
+  return resolve(id, 'pass', '', { models:models.length }, pack);
+}
+
+function packSummary(pack, models, summaries, packReport, marketing, packConfirms){
+  const items = {};
+  for (const id of PACK_IDS) items[id] = packItemStatus(id, pack, models, summaries, packReport, marketing, packConfirms);
+  const all = PACK_IDS.map(id => items[id]);
+  return { items, done: all.filter(s => s.passed).length, total: all.length };
+}
+
+/* Stats from the Blender report fill the model's number fields (SPEC m1-15). Returns true if changed. */
+function syncStats(model, blenderReport){
+  if (!blenderReport || !blenderReport.stats) return false;
+  const s = blenderReport.stats, next = { tris:str(s.tris), tex:str(s.tex), mats:str(s.mats), objs:str(s.objs) };
+  const changed = Object.keys(next).some(k => model.stats[k] !== next[k]);
+  if (changed) model.stats = next;
+  return changed;
+}
+
+root.AG = { MODEL_PHASES, PACK_PHASES, MODEL_IDS, PACK_IDS, SOURCE, SOURCE_NAME, NO_PACK, UNSAFE,
+  isManual, blankModel, blankPack, blankState, normalize, normModel, normPack, localDate, uid,
+  packOf, reportKey, validReport, indexReports, reportsFor, orphanReports,
+  modelItemStatus, modelSummary, packItemStatus, packSummary, isStale, syncStats,
+  marketingStatus, technicalDraft, aiDraft, sameJson, T, setLang, getLang, loc, reportPackNames, packModels, manualNotes };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+
+<script>
+(function(){
+'use strict';
+const AG = window.AG;
+const { MODEL_PHASES, PACK_PHASES, MODEL_IDS, PACK_IDS, NO_PACK, UNSAFE } = AG;
+const T = AG.T;
+
+/* =========================================================
+   Language (SPEC M8): saved per browser; first visit follows the browser language
+   ========================================================= */
+const LANG_KEY = 'assetGate.lang';
+const TROUBLE = [   // [symptom, cause, fix] in English and Thai
+  { en:['Pink/purple material', 'No URP Asset in Graphics/Quality settings, or the shader is not URP', 'Assign the URP Asset, set the shader to <code>Universal Render Pipeline/Lit</code>, or Edit → Rendering → Materials → Convert Selected Built-in Materials to URP'],
+    th:['แมทีเรียลเป็นสีชมพู/ม่วง', 'ไม่ได้ผูก URP Asset ใน Graphics/Quality Settings หรือ shader ไม่ใช่ URP', 'ผูก URP Asset แล้วเลือก shader เป็น <code>Universal Render Pipeline/Lit</code> หรือ Edit → Rendering → Materials → Convert Selected Built-in Materials to URP'] },
+  { en:['White model / no texture', 'Textures were not delivered as files, or the material is still inside the model', 'Press Setup in the Asset Gate window (it sets Use External Materials and wires the maps)'],
+    th:['โมเดลขาว/ไม่มีเท็กซ์เจอร์', 'เท็กซ์เจอร์ไม่ได้ถูกส่งเป็นไฟล์ หรือแมทีเรียลยังฝังอยู่ในโมเดล', 'กด “ตั้งค่าอัตโนมัติ” ในหน้าต่าง Asset Gate (ตั้ง Use External Materials และผูกเท็กซ์เจอร์ให้)'] },
+  { en:['Surface too shiny or too matte', 'A roughness map was used as is, but URP/Lit uses smoothness', 'Setup converts metallic-roughness to metallic-smoothness (Export to Unity already sends it converted)'],
+    th:['ผิวมันหรือด้านผิดปกติ', 'ใช้ roughness ตรงๆ แต่ URP/Lit ใช้ smoothness', 'ตั้งค่าอัตโนมัติแปลงให้ (ปุ่ม “ส่งเข้า Unity” ส่งแบบแปลงแล้วอยู่แล้ว)'] },
+  { en:['Wrong normal direction / bumps look inverted', 'Y channel flipped (OpenGL vs DirectX) or not imported as a Normal Map', 'Texture Type = Normal Map; if still inverted, flip the green channel of the texture and export again'],
+    th:['ทิศ normal ผิด / เงาเว้า-นูนกลับด้าน', 'ช่องสีเขียว (Y) กลับด้าน (OpenGL กับ DirectX) หรือไม่ได้ตั้งเป็น Normal Map', 'ตั้ง Texture Type = Normal Map ถ้ายังกลับด้านให้กลับช่องสีเขียวของเท็กซ์เจอร์แล้วส่งใหม่'] },
+  { en:['Model distorted after import', 'Transforms not applied when exporting', 'Fix m1-5 in Blender (Apply Transform), then Export to Unity again'],
+    th:['โมเดลบิดเบี้ยวหลังนำเข้า', 'ไม่ได้ใช้ค่าตำแหน่ง/หมุน/สเกลตอนส่งออก', 'แก้ข้อ m1-5 ใน Blender (Apply Transform) แล้วกด “ส่งเข้า Unity” ใหม่'] },
+  { en:['Wrong scale', 'Blender units are not Metric 1.0', 'Scene Unit = Metric (scale 1.0) in Blender, Scale Factor = 1 in Unity'],
+    th:['สเกลเพี้ยน', 'หน่วยใน Blender ไม่ใช่ Metric 1.0', 'ตั้ง Scene Unit = Metric (สเกล 1.0) ใน Blender และ Scale Factor = 1 ใน Unity'] },
+  { en:['Names like <code>Mesh_0</code> in the prefab', 'Default names from the AI tool were kept', 'Fix m1-8 in Blender (rename), then Export to Unity again'],
+    th:['ชื่อ <code>Mesh_0</code> โผล่ใน prefab', 'ยังใช้ชื่อเริ่มต้นจากเครื่องมือ AI', 'แก้ข้อ m1-8 ใน Blender (เปลี่ยนชื่อ) แล้วกด “ส่งเข้า Unity” ใหม่'] },
+];
+
+function storedLang(){
+  try { const v = localStorage.getItem(LANG_KEY); if (v === 'en' || v === 'th') return v; } catch (e) { /* storage blocked */ }
+  return (navigator.language || '').toLowerCase().startsWith('th') ? 'th' : 'en';
+}
+
+/* Texts outside the rendered app: header, buttons, reference table, footer */
+function applyStaticText(){
+  const lang = AG.getLang();
+  document.documentElement.lang = lang;
+  document.title = T('ui.docTitle');
+  $('#heroTitle').textContent = T('ui.title');
+  $('#heroText').innerHTML = T('ui.intro');
+  $('#reloadBtn').textContent = T('ui.reload');
+  $('#trbl').textContent = T('ui.trbl');
+  $('#trblHead').innerHTML = T('ui.trblHead');
+  $('#trblBody').replaceChildren(...TROUBLE.map(row => {
+    const tr = document.createElement('tr');
+    row[lang].forEach((cell, i) => { const td = document.createElement('td'); if (i === 0) td.className = 'warn-col'; td.innerHTML = cell; tr.append(td); });
+    return tr;
+  }));
+  $('#foot').innerHTML = T('ui.footer');
+  $('#langEn').setAttribute('aria-pressed', String(lang === 'en'));
+  $('#langTh').setAttribute('aria-pressed', String(lang === 'th'));
+}
+
+function useLang(lang){
+  AG.setLang(lang);
+  try { localStorage.setItem(LANG_KEY, lang); } catch (e) { /* not saved; still switches */ }
+  applyStaticText();
+  if (typeof render === 'function' && document.readyState !== 'loading') render();
+}
+
+/* =========================================================
+   Storage: Data folder (state.json) + browser backup
+   ========================================================= */
+const LS_KEY = 'assetGate.v3';
+const LS_KEY_V2 = 'assetChecklist.v2';
+const POLL_MS = 3000;
+
+let state = AG.blankState();
+let folder = null;          // FileSystemDirectoryHandle
+let folderState = 'none';   // none | needs-permission | ready | unsupported
+let index = AG.indexReports([]);
+let config = null;           // config.json from the Data folder (read-only for this page)
+let marketing = {};          // pack name -> { fileName: { width, height, format, alpha } }
+let reportSignature = '';
+let lastLoaded = null;
+let lastSaved = null;
+let saveError = '';
+let refreshers = [];
+
+function lsGet(key){ try { return localStorage.getItem(key); } catch (e) { return null; } }
+function lsSet(key, val){ try { localStorage.setItem(key, val); return true; } catch (e) { return false; } }
+
+function loadBackup(){
+  const raw = lsGet(LS_KEY) || lsGet(LS_KEY_V2);
+  if (!raw) return AG.blankState();
+  try { return AG.normalize(JSON.parse(raw)); } catch (e) { return AG.blankState(); }
+}
+
+/* Remember the folder handle between visits (IndexedDB). */
+function idb(){
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('asset-gate', 1);
+    req.onupgradeneeded = () => req.result.createObjectStore('handles');
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function idbGet(key){
+  try { const db = await idb(); return await new Promise(r => { const q = db.transaction('handles').objectStore('handles').get(key); q.onsuccess = () => r(q.result || null); q.onerror = () => r(null); }); }
+  catch (e) { return null; }
+}
+async function idbSet(key, val){
+  try { const db = await idb(); await new Promise(r => { const t = db.transaction('handles', 'readwrite'); t.objectStore('handles').put(val, key); t.oncomplete = r; t.onerror = r; }); }
+  catch (e) { /* the folder just has to be picked again next visit */ }
+}
+
+async function readJson(dir, name){
+  try { const fh = await dir.getFileHandle(name); return JSON.parse(await (await fh.getFile()).text()); }
+  catch (e) { return undefined; }
+}
+
+let saveTimer = null;
+function save(){ clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 400); }
+async function saveNow(){
+  clearTimeout(saveTimer);
+  const text = JSON.stringify(state, null, 2);
+  lsSet(LS_KEY, text);
+  if (folder && folderState === 'ready') {
+    try {
+      const fh = await folder.getFileHandle('state.json', { create:true });
+      const w = await fh.createWritable(); await w.write(text); await w.close();
+      lastSaved = Date.now(); saveError = '';
+    } catch (e) { saveError = T('ui.saveError', e.message); }
+  } else lastSaved = Date.now();
+  renderStatus();
+}
+window.addEventListener('pagehide', () => { lsSet(LS_KEY, JSON.stringify(state)); });
+
+async function useFolder(handle){
+  folder = handle; folderState = 'ready';
+  const fromFolder = await readJson(folder, 'state.json');
+  if (fromFolder !== undefined) state = AG.normalize(fromFolder);
+  else await saveNow();   // first use: the browser data becomes state.json
+  await loadReports(true);
+  render();
+}
+
+async function pickFolder(){
+  if (!window.showDirectoryPicker) { toast(T('ui.noPicker')); return; }
+  let handle;
+  try { handle = await window.showDirectoryPicker({ id:'asset-gate-data', mode:'readwrite' }); }
+  catch (e) { return; }
+  await idbSet('data', handle);
+  await useFolder(handle);
+  toast(T('ui.connected', handle.name));
+}
+
+async function regrant(){
+  const handle = await idbGet('data');
+  if (!handle) return pickFolder();
+  try { if (await handle.requestPermission({ mode:'readwrite' }) === 'granted') return useFolder(handle); }
+  catch (e) { /* fall through */ }
+  toast(T('ui.denied'));
+}
+
+async function restoreFolder(){
+  if (!window.showDirectoryPicker) { folderState = 'unsupported'; return; }
+  const handle = await idbGet('data');
+  if (!handle) return;
+  let perm = 'prompt';
+  try { perm = await handle.queryPermission({ mode:'readwrite' }); } catch (e) { /* treat as prompt */ }
+  if (perm === 'granted') await useFolder(handle);
+  else { folder = handle; folderState = 'needs-permission'; }
+}
+
+/* =========================================================
+   Reports
+   ========================================================= */
+async function scanReports(){
+  const files = [], sig = [];
+  let reportsDir;
+  try { reportsDir = await folder.getDirectoryHandle('reports'); } catch (e) { return { files, sig:'' }; }
+  for await (const [packName, packDir] of reportsDir.entries()) {
+    if (packDir.kind !== 'directory') continue;
+    for await (const [name, fh] of packDir.entries()) {
+      if (fh.kind !== 'file' || !name.endsWith('.json')) continue;
+      const file = await fh.getFile();
+      sig.push(packName + '/' + name + ':' + file.lastModified + ':' + file.size);
+      let data = null;
+      try { data = JSON.parse(await file.text()); } catch (e) { data = null; }
+      files.push({ pack:packName, name, data });
+    }
+  }
+  return { files, sig: sig.sort().join('|') };
+}
+
+/* Image size, format and alpha from the file header (PNG IHDR / tRNS; other formats via the browser). */
+async function imageInfo(file){
+  const head = new Uint8Array(await file.slice(0, 33).arrayBuffer());
+  const isPng = head.length >= 26 && head[0] === 0x89 && head[1] === 0x50 && head[2] === 0x4E && head[3] === 0x47;
+  if (isPng) {
+    const dv = new DataView(head.buffer);
+    const colorType = head[25];
+    let alpha = colorType === 4 || colorType === 6;
+    if (!alpha) {
+      // a tRNS chunk also makes the PNG transparent
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      for (let i = 8; i + 8 <= bytes.length;) {
+        const len = new DataView(bytes.buffer, i, 4).getUint32(0);
+        const type = String.fromCharCode(bytes[i + 4], bytes[i + 5], bytes[i + 6], bytes[i + 7]);
+        if (type === 'tRNS') { alpha = true; break; }
+        if (type === 'IDAT' || type === 'IEND') break;
+        i += 12 + len;
+      }
+    }
+    return { width: dv.getUint32(16), height: dv.getUint32(20), format:'PNG', alpha };
+  }
+  try {
+    const bmp = await createImageBitmap(file);
+    const info = { width: bmp.width, height: bmp.height, format: /\.jpe?g$/i.test(file.name) ? 'JPG' : (file.name.split('.').pop() || '').toUpperCase(), alpha:false };
+    bmp.close();
+    return info;
+  } catch (e) { return null; }
+}
+
+async function scanMarketing(){
+  const result = {}, sig = [];
+  let dir;
+  try { dir = await folder.getDirectoryHandle('marketing'); } catch (e) { return { result, sig:'' }; }
+  for await (const [packName, packDir] of dir.entries()) {
+    if (packDir.kind !== 'directory') continue;
+    result[packName] = {};
+    for await (const [name, fh] of packDir.entries()) {
+      if (fh.kind !== 'file' || !/\.(png|jpe?g)$/i.test(name)) continue;
+      const file = await fh.getFile();
+      sig.push(packName + '/' + name + ':' + file.lastModified + ':' + file.size);
+      const info = await imageInfo(file);
+      if (info) result[packName][name] = info;
+    }
+  }
+  return { result, sig: sig.sort().join('|') };
+}
+
+function marketingFor(packName){
+  return { images: marketing[packName] || null, cfg: config };
+}
+
+async function loadReports(force){
+  if (!folder || folderState !== 'ready') return false;
+  let scan, mkt, cfgFile;
+  try {
+    scan = await scanReports();
+    mkt = await scanMarketing();
+    const fh = await folder.getFileHandle('config.json').catch(() => null);
+    cfgFile = fh ? await fh.getFile() : null;
+  }
+  catch (e) { folderState = 'needs-permission'; renderStatus(); return false; }
+  lastLoaded = Date.now();
+  const sig = scan.sig + '#' + mkt.sig + '#' + (cfgFile ? cfgFile.lastModified : '');
+  if (!force && sig === reportSignature) { renderStatus(); return false; }
+  reportSignature = sig;
+  marketing = mkt.result;
+  try { config = cfgFile ? JSON.parse(await cfgFile.text()) : null; } catch (e) { config = null; }
+  index = AG.indexReports(scan.files);
+  let changed = false;
+  for (const m of Object.values(state.models)) changed = AG.syncStats(m, AG.reportsFor(m, index).blender) || changed;
+  if (changed) save();
+  return true;
+}
+
+function typing(){
+  const a = document.activeElement;
+  return a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.tagName === 'SELECT') && a.type !== 'checkbox';
+}
+
+/* Auto-refresh; never re-render while the user is typing. */
+setInterval(async () => {
+  if (document.hidden || typing()) return;
+  if (await loadReports(false)) { render(); toast(T('ui.updated')); }
+}, POLL_MS);
+
+/* =========================================================
+   Helpers
+   ========================================================= */
+const $ = s => document.querySelector(s);
+function el(tag, props, ...kids){
+  const e = document.createElement(tag);
+  for (const k of Object.keys(props || {})) {
+    const v = props[k];
+    if (v === false || v == null) continue;
+    if (k === 'class') e.className = v;
+    else if (k === 'html') e.innerHTML = v;
+    else if (k.slice(0,2) === 'on') e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? '' : v);
+  }
+  kids.flat().forEach(c => { if (c != null && c !== false) e.append(c.nodeType ? c : document.createTextNode(c)); });
+  return e;
+}
+const btn = (text, fn, cls) => el('button', { type:'button', class:'btn ' + (cls || ''), onclick: fn }, text);
+let toastTimer = null;
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+function getPack(name){ return state.packs[name] || (state.packs[name] = AG.blankPack()); }
+const packNames = () => AG.reportPackNames(state, index);
+const modelsOf = pack => AG.packModels(state, index, pack);
+const mLabel = m => (m.name.trim() || T('res.unnamed'));
+const summaryOf = m => AG.modelSummary(m, index);
+const fmtTime = ts => { try { return new Date(ts).toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit', second:'2-digit' }); } catch (e) { return ''; } };
+const fmtDay = ts => { try { return new Date(ts).toLocaleDateString('th-TH', { day:'numeric', month:'short' }) + ' ' + new Date(ts).toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit' }); } catch (e) { return ''; } };
+
+function field(label, input, full){
+  return el('div', { class: 'field' + (full ? ' full' : '') }, el('label', { for: input.id }, label), input);
+}
+function textInput(id, val, ph, onInput, type){
+  const i = el('input', { type: type || 'text', id, placeholder: ph || '' });
+  if (type === 'number') { i.min = '0'; i.setAttribute('inputmode', 'numeric'); }
+  i.value = val;
+  i.addEventListener('input', () => { onInput(i.value); save(); });
+  return i;
+}
+function areaInput(id, val, ph, onInput){
+  const i = el('textarea', { id, placeholder: ph || '' });
+  i.value = val;
+  i.addEventListener('input', () => { onInput(i.value); save(); });
+  return i;
+}
+
+/* =========================================================
+   Checklist rendering
+   ========================================================= */
+const STATUS_MARK = { pass:'✓', fail:'✕', review:'?', na:'–', pending:'', stale:'↻' };
+const STATUS_TEXT = new Proxy({}, { get: (_, status) => T('status.' + String(status)) });
+
+function itemRow(it, st, holder, onChange){
+  if (st.status === 'manual') {
+    const cb = el('input', { type:'checkbox', class:'item-check', id:'c-' + it.id });
+    cb.checked = st.passed;
+    const row = el('div', { class:'checkrow' + (st.passed ? ' done' : '') }, cb,
+      el('label', { for:'c-' + it.id },
+        el('span', { class:'item-title', html: AG.loc(it, 't') + '<span class="tag">' + T('ui.manual') + '</span>' }),
+        it.d ? el('span', { class:'item-desc', html: AG.loc(it, 'd') }) : null));
+    cb.addEventListener('change', () => {
+      if (cb.checked) holder.checks[it.id] = true; else delete holder.checks[it.id];
+      onChange();
+    });
+    return row;
+  }
+
+  const shown = st.status === 'fail' && st.override ? 'pass' : st.status;
+  const mark = el('span', { class:'status ' + shown, title: STATUS_TEXT[st.status], 'aria-label': STATUS_TEXT[st.status] },
+    st.status === 'review' && st.confirmed ? '✓' : STATUS_MARK[st.status]);
+  if (st.status === 'review' && st.confirmed) mark.className = 'status pass';
+
+  const main = el('div', { class:'item-main' },
+    el('span', { class:'item-title', html: AG.loc(it, 't') + '<span class="tag">' + AG.SOURCE_NAME[st.source] + '</span>' }),
+    it.d ? el('span', { class:'item-desc', html: AG.loc(it, 'd') }) : null);
+
+  const result = [];
+  if (st.detail) result.push(st.detail);
+  if (st.status === 'review' && st.confirmed) result.push(st.confirmedBy ? T('ui.confirmedIn', AG.SOURCE_NAME[st.confirmedBy]) : T('ui.confirmedHere'));
+  if (st.status === 'fail' && st.override) result.push(T('ui.acceptedReason', st.override));
+  if (result.length) {
+    const cls = st.status === 'fail' && !st.override ? 'fail' : (st.status === 'review' && !st.confirmed) || st.status === 'stale' ? 'review' : 'info';
+    main.append(el('span', { class:'item-result ' + cls }, result.join(' · ')));
+  }
+
+  const actions = el('div', { class:'item-actions' });
+  if (st.status === 'review' && st.confirmedBy) {
+    main.append(el('span', { class:'hint' }, T('ui.undoIn', AG.SOURCE_NAME[st.confirmedBy])));
+  } else if (st.status === 'review') {
+    actions.append(st.confirmed
+      ? btn(T('ui.unconfirm'), () => { delete holder.confirms[it.id]; onChange(); }, 'small')
+      : btn(T('ui.confirm'), () => { holder.confirms[it.id] = true; onChange(); }, 'small primary'));
+  } else if (st.status === 'fail') {
+    actions.append(st.override
+      ? btn(T('ui.cancel'), () => { delete holder.overrides[it.id]; onChange(); }, 'small')
+      : btn(T('ui.accept'), () => {
+          const reason = (window.prompt(T('ui.acceptReason')) || '').trim();
+          if (!reason) return;
+          holder.overrides[it.id] = reason; onChange();
+        }, 'small'));
+  }
+  if (actions.childNodes.length) main.append(actions);
+
+  return el('div', { class:'checkrow' + (st.passed ? ' done' : '') }, mark, main);
+}
+
+function phaseEl(p, statuses, holder, extraEl, onChange){
+  const list = p.groups.flatMap(g => g.items.map(i => i.id));
+  const n = list.filter(id => statuses[id].passed).length;
+  const cnt = el('span', { class:'phase-count' + (n === list.length ? ' all' : '') }, (n === list.length ? '✓ ' : '') + n + ' / ' + list.length);
+  const d = el('details', { class:'phase', open:true },
+    el('summary', { class:'phase-head' },
+      el('span', { class:'phase-title' }, el('span', { class:'phase-num' }, p.num), el('h3', null, AG.loc(p, 'title'))), cnt));
+  const body = el('div', { class:'phase-body' });
+  if (p.note) body.append(el('p', { class:'phase-note', html:AG.loc(p, 'note') }));
+  if (extraEl) body.append(extraEl);
+  p.groups.forEach(g => {
+    if (g.g) body.append(el('h4', { class:'group-label' }, g.g));
+    g.items.forEach(it => body.append(itemRow(it, statuses[it.id], holder, onChange)));
+  });
+  if (p.callout) body.append(el('div', { class:'callout', html:p.callout }));
+  d.append(body);
+  return d;
+}
+
+function renderPackView(){
+  const app = $('#app'); app.replaceChildren();
+  const names = packNames();
+  if (!state.currentPack || !names.includes(state.currentPack)) state.currentPack = names[0] || null;
+
+  const chips = el('div', { class:'chips', role:'group', 'aria-label':T('ui.pickPack') });
+  names.forEach(n => {
+    const ms = modelsOf(n), full = ms.filter(m => summaryOf(m).gate2).length;
+    chips.append(el('button', { type:'button', class:'chip', 'aria-pressed': String(n === state.currentPack),
+      onclick: () => { state.currentPack = n; saveNow(); render(); } }, T('ui.packChip', n, full, ms.length)));
+  });
+  if (names.length) app.append(chips);
+
+  const name = state.currentPack;
+  if (!name) {
+    app.append(el('div', { class:'card empty' }, el('p', { html:
+      T('ui.noResults') })));
+    return;
+  }
+  const pack = getPack(name);
+  const ms = modelsOf(name);
+  const summaries = {}; ms.forEach(m => { summaries[m.id] = summaryOf(m); });
+
+  /* pack info (the name is the Unity folder Assets/<Pack>) */
+  const nameI = el('input', { type:'text', id:'p-name', readonly:true });
+  nameI.value = name;
+  const infoCard = el('section', { class:'card' },
+    el('h2', null, T('ui.packInfo')),
+    el('div', { class:'grid' },
+      field(T('ui.packName'), nameI),
+      field(T('ui.unityVer'), textInput('p-unity', pack.unityVer, T('ui.unityVerHint'), v => { pack.unityVer = v; })),
+      field(T('ui.budget'), textInput('p-budget', pack.budget, T('ui.budgetHint'), v => { pack.budget = v; }, 'number')),
+      field(T('ui.note'), areaInput('p-note', pack.note, T('ui.noteHint'), v => { pack.note = v; }), true)));
+  app.append(infoCard);
+
+  /* summary table */
+  const full = ms.filter(m => summaries[m.id].gate2).length;
+  const budget = parseInt(pack.budget, 10) || 0;
+  const totalTris = ms.reduce((a, m) => a + (parseInt(m.stats.tris, 10) || 0), 0);
+  const texSet = {}; ms.forEach(m => { if (m.stats.tex) texSet[m.stats.tex] = (texSet[m.stats.tex] || 0) + 1; });
+  const texKeys = Object.keys(texSet);
+
+  const sumCard = el('section', { class:'card' }, el('h2', null, T('ui.summary')));
+  sumCard.append(el('p', { class:'summary-line' },
+    T('ui.summaryLine', ms.length, full, ms.length - full),
+    totalTris ? T('ui.totalTris', totalTris.toLocaleString('en-US')) : ''));
+  if (texKeys.length > 1) sumCard.append(el('p', { class:'hint bad' }, T('ui.mixedTex', texKeys.map(k => k + ' px ×' + texSet[k]).join(', '))));
+
+  if (!ms.length) {
+    sumCard.append(el('p', { class:'hint' }, T('ui.noModelResults')));
+  } else {
+    const tbl = el('table', { class:'ref' },
+      el('caption', { class:'sr-only' }, T('ui.tableCaption', name)),
+      el('thead', null, el('tr', null, ['ui.colModel','ui.colTris','ui.colTex','ui.colGate1','ui.colGate2','ui.colProgress','ui.colLeft'].map(k => T(k)).map(h => el('th', { scope:'col' }, h)))));
+    const tb = el('tbody');
+    ms.forEach(m => {
+      const s = summaries[m.id], pct = Math.round(s.done / s.total * 100);
+      const left = MODEL_IDS.filter(id => !s.items[id].passed);
+      const where = left.length ? T('ui.fixIn', left.slice(0, 4).join(', ') + (left.length > 4 ? ' …' : ''),
+        [...new Set(left.map(id => AG.SOURCE_NAME[AG.SOURCE[id]]))].join(' / ')) : T('ui.allDone');
+      const t = parseInt(m.stats.tris, 10) || 0;
+      const trisCell = el('td', null, m.stats.tris || '—');
+      if (budget && t > budget) trisCell.append(' ', el('span', { class:'badge-warn' }, T('ui.overBudget')));
+      tb.append(el('tr', null,
+        el('td', null, mLabel(m)), trisCell,
+        el('td', null, m.stats.tex ? m.stats.tex + ' px' : '—'),
+        el('td', null, s.gate1 ? '✓' : s.reports.blender ? '✕' : '—'),
+        el('td', null, s.gate2 ? '✓' : s.stale ? '↻ ' + T('status.stale') : s.reports.unity ? '✕' : '—'),
+        el('td', null, el('span', { class:'mini-bar' }, el('i', { style:'width:' + pct + '%' })), s.done + '/' + s.total),
+        el('td', null, where)));
+    });
+    tbl.append(tb);
+    sumCard.append(el('div', { class:'table-wrap' }, tbl));
+  }
+  app.append(sumCard);
+
+  /* drafts for the store page */
+  const draftBox = (title, text) => {
+    const area = el('textarea', { readonly:true, rows:String(Math.min(12, text.split('\n').length + 1)), 'aria-label':title });
+    area.value = text;
+    return el('div', { class:'field full' }, el('label', null, title), area,
+      el('div', { class:'bar', style:'margin:6px 0 0;' }, btn(T('ui.copy'), () => {
+        (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(() => toast(T('ui.copied')), () => { area.select(); toast(T('ui.selectCopy')); });
+      }, 'small')));
+  };
+  if (ms.length) {
+    app.append(el('section', { class:'card' },
+      el('h2', null, T('ui.drafts')),
+      el('p', { class:'phase-note' }, T('ui.draftsNote')),
+      el('div', { class:'grid' },
+        draftBox('Technical details (k1-8)', AG.technicalDraft(name, pack, ms, summaries)),
+        draftBox('AI disclosure (k1-7)', AG.aiDraft(ms, summaries)))));
+  }
+  app.append(el('section', { class:'card' },
+    el('h2', null, T('ui.images')),
+    el('p', { class:'phase-note', html: (() => {
+      const files = config && config.marketing && config.marketing.files ? config.marketing.files
+        : { icon:'icon.png', card:'card.png', cover:'cover.png', social:'social.png', screenshotPrefix:'screenshot_' };
+      return T('ui.imagesWhere', name.replace(/[<>&]/g, ''), ['icon','card','cover','social'].map(k => '<code>' + files[k] + '</code>').join(', '),
+        '<code>' + files.screenshotPrefix + '01.png</code>');
+    })() })));
+
+  const psum = AG.packSummary(pack, ms, summaries, index.packUnity[name] || null, marketingFor(name), index.confirms.packUnity[name] || null);
+  const onChange = () => { saveNow(); render(); };
+  PACK_PHASES.forEach(p => app.append(phaseEl(p, psum.items, pack, null, onChange)));
+}
+
+/* =========================================================
+   Progress / status / views
+   ========================================================= */
+function renderProgress(){
+  let done = 0, total = 0;
+  const label = T('ui.progress');
+  {
+    const name = state.currentPack;
+    if (name) {
+      const ms = modelsOf(name), summaries = {};
+      ms.forEach(m => { summaries[m.id] = summaryOf(m); done += summaries[m.id].done; total += summaries[m.id].total; });
+      const ps = AG.packSummary(getPack(name), ms, summaries, index.packUnity[name] || null, marketingFor(name), index.confirms.packUnity[name] || null);
+      done += ps.done; total += ps.total;
+    }
+  }
+  const pct = total ? Math.round(done / total * 100) : 0;
+  $('#progressLabel').textContent = label;
+  $('#progressFill').style.width = pct + '%';
+  $('#progressBar').setAttribute('aria-valuenow', String(pct));
+  $('#progressCount').textContent = done + ' / ' + total;
+}
+
+function renderStatus(){
+  const f = $('#folderStatus'), s = $('#saveStatus'), b = $('#folderBtn');
+  if (!f) return;
+  b.textContent = T('ui.pickFolder');
+  b.onclick = pickFolder;
+  if (folderState === 'ready') {
+    f.className = 'ok';
+    const errs = index.errors.length ? T('ui.badReports', index.errors.length) : '';
+    f.textContent = T('ui.folderOk', folder.name) + (lastLoaded ? T('ui.lastRead', fmtTime(lastLoaded)) : '') + errs;
+    b.textContent = T('ui.changeFolder');
+  } else if (folderState === 'needs-permission') {
+    f.className = 'warn';
+    f.textContent = T('ui.needPermission', folder ? folder.name : '');
+    b.textContent = T('ui.allowFolder');
+    b.onclick = regrant;
+  } else if (folderState === 'unsupported') {
+    f.className = 'warn';
+    f.textContent = T('ui.unsupported');
+  } else {
+    f.className = 'warn';
+    f.textContent = T('ui.noFolder');
+  }
+  s.className = saveError ? 'warn' : '';
+  s.textContent = saveError || (lastSaved ? T('ui.saved', fmtTime(lastSaved)) : '');
+}
+
+function render(){
+  refreshers = [];
+  renderPackView();
+  renderProgress(); renderStatus();
+}
+$('#reloadBtn').addEventListener('click', async () => {
+  if (folderState !== 'ready') { toast(T('ui.notConnected')); return; }
+  await loadReports(true); render(); toast(T('ui.reloaded'));
+});
+
+/* =========================================================
+   Export / Import
+   ========================================================= */
+$('#exportBtn').addEventListener('click', () => {
+  const data = { app:'asset-gate', v:3, exportedAt:new Date().toISOString(), models:state.models, packs:state.packs };
+  const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type:'application/json' }));
+  const a = el('a', { href:url, download:'asset-gate-' + AG.localDate() + '.json' });
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  state.lastExport = Date.now(); saveNow(); toast(T('ui.exported'));
+});
+$('#importFile').addEventListener('change', e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const d = JSON.parse(r.result);
+      if (!d || typeof d !== 'object' || !d.models || typeof d.models !== 'object') throw new Error('bad');
+      const inc = AG.normalize({ models:d.models, packs:d.packs });   // v2 exports are migrated here
+      const ids = Object.keys(inc.models), clash = ids.filter(id => state.models[id]).length;
+      if (!confirm(T('ui.importAsk', ids.length, clash))) return;
+      ids.forEach(id => { state.models[id] = inc.models[id]; });
+      Object.keys(inc.packs).forEach(n => { state.packs[n] = inc.packs[n]; });
+      if (!state.currentId || !state.models[state.currentId]) state.currentId = ids[0] || null;
+      saveNow(); render(); toast(T('ui.imported', ids.length));
+    } catch (err) { toast(T('ui.importBad')); }
+  };
+  r.onerror = () => toast(T('ui.readFail'));
+  r.readAsText(f);
+  e.target.value = '';
+});
+
+/* Test hook: lets an automated test hand over a folder-like handle without the OS picker. */
+window.AssetGate = { useFolder, getState: () => state, getIndex: () => index, getMarketing: () => marketing };
+
+$('#langEn').addEventListener('click', () => useLang('en'));
+$('#langTh').addEventListener('click', () => useLang('th'));
+
+(async function start(){
+  AG.setLang(storedLang());
+  applyStaticText();
+  state = loadBackup();
+  render();
+  await restoreFolder();
+  render();
+})();
+})();
+</script>
+
+</body>
+</html>

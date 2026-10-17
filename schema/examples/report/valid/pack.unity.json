@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "tool": "unity",
+  "toolVersion": "0.1.0",
+  "scope": "pack",
+  "pack": "Frostpunk Settlement Kit",
+  "checkedAt": "2026-10-13T12:00:00Z",
+  "checks": {
+    "k1-2": { "status": "pass", "detail": "", "values": { "longest": 92, "limit": 150 } },
+    "k3-7": { "status": "fail", "detail": "พบ 2 ไฟล์ที่ไม่มี prefab อ้างถึง", "values": { "unused": ["Textures/Old_BaseColor.png", "Materials/Test.mat"] } }
+  }
+}

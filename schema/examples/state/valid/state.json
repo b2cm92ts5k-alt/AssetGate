@@ -1,0 +1,33 @@
+{
+  "v": 3,
+  "view": "model",
+  "currentId": "mabc1234",
+  "currentPack": "Frostpunk Settlement Kit",
+  "lastExport": null,
+  "models": {
+    "mabc1234": {
+      "id": "mabc1234",
+      "name": "Arrow",
+      "pack": "Frostpunk Settlement Kit",
+      "mat": "Texture (Meshy)",
+      "date": "2026-10-13",
+      "note": "",
+      "stats": { "tris": "1200", "tex": "1024", "mats": "1", "objs": "3" },
+      "lic": { "plan": "Pro", "genDate": "2026-09-24", "manual": "cleanup mesh, แก้ UV" },
+      "checks": { "m1-13": true, "m4-1": true },
+      "confirms": { "m1-7": true },
+      "overrides": { "m1-9": "ใบมีดกับด้ามต้องแยก material" },
+      "updated": 1791885600000
+    }
+  },
+  "packs": {
+    "Frostpunk Settlement Kit": {
+      "checks": { "k3-9": true },
+      "confirms": {},
+      "overrides": {},
+      "budget": "2000",
+      "unityVer": "",
+      "note": ""
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "asset-gate/confirms.schema.json",
+  "title": "Asset Gate confirmations made in Blender / Unity (*.blender.confirms.json, *.unity.confirms.json, _pack.unity.confirms.json)",
+  "description": "A confirmation counts only while the check in the matching report is still 'review' and its values equal the stored values (SPEC D11).",
+  "type": "object",
+  "required": ["schema", "tool", "scope", "pack", "confirms"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": 1 },
+    "tool": { "enum": ["blender", "unity"] },
+    "scope": { "enum": ["model", "pack"] },
+    "pack": { "type": "string", "minLength": 1 },
+    "model": { "type": "string", "minLength": 1 },
+    "confirms": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/confirm" }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "scope": { "const": "model" } } },
+      "then": { "required": ["model"] }
+    },
+    {
+      "if": { "properties": { "scope": { "const": "pack" } } },
+      "then": {
+        "properties": {
+          "tool": { "const": "unity" },
+          "confirms": { "propertyNames": { "pattern": "^(k1-([1-9]|10)|k3-([1-9]|10))$" } }
+        },
+        "not": { "required": ["model"] }
+      }
+    },
+    {
+      "if": { "properties": { "tool": { "const": "blender" } } },
+      "then": {
+        "properties": {
+          "scope": { "const": "model" },
+          "confirms": { "propertyNames": { "pattern": "^m1-([1-9]|1[0-6])$" } }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "tool": { "const": "unity" }, "scope": { "const": "model" } } },
+      "then": {
+        "properties": {
+          "confirms": { "propertyNames": { "pattern": "^(m2-([1-9]|1[0-2])|m3-[1-8]|m4-[1-4])$" } }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "confirm": {
+      "type": "object",
+      "required": ["values", "confirmedAt"],
+      "additionalProperties": false,
+      "properties": {
+        "values": { "type": "object" },
+        "confirmedAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

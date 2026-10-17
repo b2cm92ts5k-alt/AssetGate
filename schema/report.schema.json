@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "asset-gate/report.schema.json",
+  "title": "Asset Gate report (*.blender.json, *.unity.json)",
+  "type": "object",
+  "required": ["schema", "tool", "toolVersion", "scope", "pack", "checkedAt", "checks"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": 1 },
+    "tool": { "enum": ["blender", "unity"] },
+    "toolVersion": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "scope": { "enum": ["model", "pack"] },
+    "pack": { "type": "string", "minLength": 1 },
+    "model": { "type": "string", "minLength": 1 },
+    "checkedAt": { "type": "string", "format": "date-time" },
+    "source": {
+      "type": "object",
+      "required": ["fbxPath", "fbxSha256"],
+      "additionalProperties": false,
+      "properties": {
+        "fbxPath": { "type": "string", "minLength": 1 },
+        "fbxSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "blendPath": { "type": "string", "minLength": 1 }
+      }
+    },
+    "stats": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tris": { "type": "integer", "minimum": 0 },
+        "tex": { "type": "integer", "minimum": 0 },
+        "mats": { "type": "integer", "minimum": 0 },
+        "objs": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "checks": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "#/$defs/check" }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "scope": { "const": "model" } } },
+      "then": { "required": ["model", "source"] }
+    },
+    {
+      "if": { "properties": { "scope": { "const": "pack" } } },
+      "then": {
+        "properties": {
+          "tool": { "const": "unity" },
+          "checks": { "propertyNames": { "pattern": "^(k1-([1-9]|10)|k3-([1-9]|10))$" } }
+        },
+        "not": { "required": ["model"] }
+      }
+    },
+    {
+      "if": {
+        "properties": { "tool": { "const": "blender" } }
+      },
+      "then": {
+        "properties": {
+          "scope": { "const": "model" },
+          "checks": { "propertyNames": { "pattern": "^m1-([1-9]|1[0-6])$" } }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "tool": { "const": "unity" }, "scope": { "const": "model" } }
+      },
+      "then": {
+        "properties": {
+          "checks": { "propertyNames": { "pattern": "^(m2-([1-9]|1[0-2])|m3-[1-8]|m4-[1-4])$" } }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "check": {
+      "type": "object",
+      "required": ["status", "detail", "values"],
+      "additionalProperties": false,
+      "properties": {
+        "status": { "enum": ["pass", "fail", "review", "na", "pending"] },
+        "detail": { "type": "string" },
+        "values": { "type": "object" }
+      },
+      "if": { "properties": { "status": { "const": "pass" } } },
+      "then": { "properties": { "values": { "minProperties": 1 } } }
+    }
+  }
+}

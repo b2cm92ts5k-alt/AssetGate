@@ -1,0 +1,9 @@
+{
+  "name": "ETLOLZ.AssetGate.Editor",
+  "rootNamespace": "ETLOLZ.AssetGate",
+  "references": [],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "autoReferenced": true
+}

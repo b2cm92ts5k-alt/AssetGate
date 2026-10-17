@@ -1,0 +1,19 @@
+schema_version = "1.0.0"
+
+# Blender extension manifest (SPEC M8). Built by tools/build_addon.py into dist/asset_gate-<version>.zip.
+id = "asset_gate"
+version = "1.0.0"
+name = "Asset Gate"
+tagline = "Check 3D models for games, fix them and send them to Unity"
+maintainer = "ETLOLZ"
+type = "add-on"
+
+tags = ["Import-Export", "Mesh", "Game Engine"]
+
+blender_version_min = "4.2.0"
+
+license = ["SPDX:GPL-3.0-or-later"]
+copyright = ["2026 ETLOLZ"]
+
+[permissions]
+files = "Read FBX and textures, write reports and deliver files to Unity"

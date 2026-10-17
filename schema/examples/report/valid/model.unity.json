@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "tool": "unity",
+  "toolVersion": "0.1.0",
+  "scope": "model",
+  "pack": "Frostpunk Settlement Kit",
+  "model": "Arrow",
+  "checkedAt": "2026-10-13T11:30:00+07:00",
+  "source": { "fbxPath": "Assets/FrostpunkSettlementKit/Meshes/Arrow.fbx", "fbxSha256": "a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4" },
+  "checks": {
+    "m2-5": { "status": "pass", "detail": "", "values": { "shader": "Universal Render Pipeline/Lit" } },
+    "m2-12": { "status": "na", "detail": "ไม่มี mesh LOD", "values": {} },
+    "m3-5": { "status": "review", "detail": "ขนาด 0.08 x 0.08 x 0.74 m", "values": { "size": [0.08, 0.08, 0.74] } },
+    "m4-4": { "status": "fail", "detail": "ช่อง \"สิ่งที่ปรับเอง\" ว่าง", "values": {} }
+  }
+}

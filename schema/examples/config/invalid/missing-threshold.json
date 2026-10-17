@@ -1,0 +1,141 @@
+{
+  "schema": 1,
+  "mesh": {
+    "mergeDistance": 0.0001,
+    "degenerateThreshold": 0.0001
+  },
+  "naming": {
+    "pattern": "^[A-Z][A-Za-z0-9]*(_[A-Za-z0-9]+)*$",
+    "defaultNameBlocklist": [
+      "^Mesh(_\\d+)?$",
+      "^Material(_\\d+)?$",
+      "^Object(_\\d+)?$",
+      "^Image(_\\d+)?$",
+      "^Texture(_\\d+)?$",
+      "^Untitled.*$",
+      "^(Cube|Sphere|Icosphere|Cylinder|Cone|Torus|Plane|Circle|Grid|Suzanne)$"
+    ]
+  },
+  "material": {
+    "maxWithoutReview": 1
+  },
+  "texture": {
+    "allowedSizes": [
+      256,
+      512,
+      1024,
+      2048,
+      4096
+    ]
+  },
+  "fbx": {
+    "forward": "-Z",
+    "up": "Y",
+    "unitScale": 1,
+    "embedTextures": false
+  },
+  "unity": {
+    "editorVersion": "6000.3.22f1",
+    "export": {
+      "meshFolder": "Meshes",
+      "textureFolder": "Textures",
+      "materialFolder": "Materials",
+      "prefabFolder": "Prefabs"
+    },
+    "textureRoles": {
+      "baseMap": [
+        "base_color",
+        "basecolor",
+        "albedo",
+        "diffuse"
+      ],
+      "normalMap": [
+        "normal"
+      ],
+      "metallicRoughness": [
+        "metallic_roughness",
+        "metallicroughness",
+        "orm"
+      ]
+    },
+    "testScene": {
+      "width": 2400,
+      "height": 1600,
+      "yaw": 45,
+      "pitch": 30,
+      "lightRotation": [
+        50,
+        -30,
+        0
+      ],
+      "lightIntensity": 1
+    },
+    "shader": "Universal Render Pipeline/Lit",
+    "colorSpace": "Linear",
+    "materialsLocation": "External",
+    "modelImport": {
+      "scaleFactor": 1,
+      "normals": "Import",
+      "tangents": "Calculate",
+      "meshCompression": "Off",
+      "readWrite": false
+    }
+  },
+  "collider": {
+    "boundsTolerancePercent": 10
+  },
+  "pack": {
+    "maxPathLength": 150,
+    "folders": [
+      "Meshes",
+      "Materials",
+      "Textures",
+      "Prefabs",
+      "Demo Scenes"
+    ],
+    "demoFolder": "Demo Scenes",
+    "readmeNames": [
+      "README",
+      "Documentation"
+    ],
+    "docExtensions": [
+      ".txt",
+      ".md",
+      ".pdf"
+    ],
+    "noticesName": "Third-Party Notices"
+  },
+  "marketing": {
+    "icon": {
+      "width": 160,
+      "height": 160
+    },
+    "card": {
+      "width": 420,
+      "height": 280
+    },
+    "cover": {
+      "width": 1950,
+      "height": 1300
+    },
+    "social": {
+      "width": 1200,
+      "height": 630,
+      "required": false
+    },
+    "screenshots": {
+      "min": 5,
+      "max": 10,
+      "aspect": "3:2",
+      "format": "PNG",
+      "alpha": false
+    },
+    "files": {
+      "icon": "icon.png",
+      "card": "card.png",
+      "cover": "cover.png",
+      "social": "social.png",
+      "screenshotPrefix": "screenshot_"
+    }
+  }
+}

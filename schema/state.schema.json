@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "asset-gate/state.schema.json",
+  "title": "Asset Gate state.json (v3, extends checklist v2 state)",
+  "type": "object",
+  "required": ["v", "models", "packs"],
+  "properties": {
+    "v": { "const": 3 },
+    "view": { "enum": ["model", "pack"] },
+    "currentId": { "type": ["string", "null"] },
+    "currentPack": { "type": ["string", "null"] },
+    "lastExport": { "type": ["number", "null"] },
+    "models": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/model" }
+    },
+    "packs": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/pack" }
+    }
+  },
+  "$defs": {
+    "modelCheckId": { "pattern": "^(m1-([1-9]|1[0-6])|m2-([1-9]|1[0-2])|m3-[1-8]|m4-[1-4])$" },
+    "packCheckId": { "pattern": "^(k1-([1-9]|10)|k2-[1-5]|k3-([1-9]|10))$" },
+    "ticks": {
+      "type": "object",
+      "additionalProperties": { "const": true }
+    },
+    "reasons": {
+      "type": "object",
+      "additionalProperties": { "type": "string", "minLength": 1 }
+    },
+    "model": {
+      "type": "object",
+      "required": ["id", "name", "pack", "mat", "date", "note", "stats", "lic", "checks", "updated", "confirms", "overrides"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string" },
+        "pack": { "type": "string" },
+        "mat": { "type": "string" },
+        "date": { "type": "string" },
+        "note": { "type": "string" },
+        "stats": {
+          "type": "object",
+          "required": ["tris", "tex", "mats", "objs"],
+          "properties": {
+            "tris": { "type": "string" },
+            "tex": { "type": "string" },
+            "mats": { "type": "string" },
+            "objs": { "type": "string" }
+          }
+        },
+        "lic": {
+          "type": "object",
+          "required": ["plan", "genDate", "manual"],
+          "properties": {
+            "plan": { "type": "string" },
+            "genDate": { "type": "string" },
+            "manual": { "type": "string" }
+          }
+        },
+        "checks": { "$ref": "#/$defs/ticks", "propertyNames": { "$ref": "#/$defs/modelCheckId" } },
+        "confirms": { "$ref": "#/$defs/ticks", "propertyNames": { "$ref": "#/$defs/modelCheckId" } },
+        "overrides": { "$ref": "#/$defs/reasons", "propertyNames": { "$ref": "#/$defs/modelCheckId" } },
+        "updated": { "type": "number" }
+      }
+    },
+    "pack": {
+      "type": "object",
+      "required": ["checks", "budget", "unityVer", "note", "confirms", "overrides"],
+      "properties": {
+        "checks": { "$ref": "#/$defs/ticks", "propertyNames": { "$ref": "#/$defs/packCheckId" } },
+        "confirms": { "$ref": "#/$defs/ticks", "propertyNames": { "$ref": "#/$defs/packCheckId" } },
+        "overrides": { "$ref": "#/$defs/reasons", "propertyNames": { "$ref": "#/$defs/packCheckId" } },
+        "budget": { "type": "string" },
+        "unityVer": { "type": "string" },
+        "note": { "type": "string" }
+      }
+    }
+  }
+}
